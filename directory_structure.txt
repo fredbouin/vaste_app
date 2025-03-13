@@ -1,0 +1,135 @@
+.
+├── client
+│   ├── README.md
+│   ├── directory_structure.txt
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   │   └── vite.svg
+│   ├── src
+│   │   ├── App.jsx
+│   │   ├── api
+│   │   │   ├── modelTemplates.js
+│   │   │   └── priceSheet.js
+│   │   ├── assets
+│   │   │   └── react.svg
+│   │   ├── components
+│   │   │   ├── Footer.jsx
+│   │   │   └── layout
+│   │   │       └── MainLayout.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── pricing
+│   │   │   │   ├── PriceSheet
+│   │   │   │   │   ├── PriceSheet.jsx
+│   │   │   │   │   └── components
+│   │   │   │   │       ├── ComponentsList.jsx
+│   │   │   │   │       ├── ExpandedDetails.jsx
+│   │   │   │   │       ├── PiecesList.jsx
+│   │   │   │   │       ├── PriceListItem.jsx
+│   │   │   │   │       └── PriceListTabs.jsx
+│   │   │   │   ├── PriceSheetPage.jsx
+│   │   │   │   ├── PricingPage.jsx
+│   │   │   │   ├── components
+│   │   │   │   │   ├── CNCPanel.jsx
+│   │   │   │   │   ├── ComponentLibraryPanel.jsx
+│   │   │   │   │   ├── ComponentSelectionPanel.jsx
+│   │   │   │   │   ├── ConfirmationDialog.jsx
+│   │   │   │   │   ├── LaborPanel.jsx
+│   │   │   │   │   ├── MaterialsPanel.jsx
+│   │   │   │   │   ├── NOTSUREIFUSEFULOverheadPanel.jsx
+│   │   │   │   │   ├── PanelHeader.jsx
+│   │   │   │   │   ├── PiecePanel.jsx
+│   │   │   │   │   ├── SubmitConfirmationDialog.jsx
+│   │   │   │   │   ├── SummaryPanel.jsx
+│   │   │   │   │   ├── material
+│   │   │   │   │   │   ├── FinishingPanel.jsx
+│   │   │   │   │   │   ├── HardwarePanel.jsx
+│   │   │   │   │   │   ├── SheetPanel.jsx
+│   │   │   │   │   │   └── UpholsteryPanel.jsx
+│   │   │   │   │   └── piece
+│   │   │   │   │       ├── ComponentForm.jsx
+│   │   │   │   │       ├── ComponentList.jsx
+│   │   │   │   │       ├── ModeSelector.jsx
+│   │   │   │   │       ├── ModelInput.jsx
+│   │   │   │   │       └── PieceCalculationForm.jsx
+│   │   │   │   └── features
+│   │   │   │       └── calculator
+│   │   │   │           ├── components
+│   │   │   │           │   └── FurniturePricingCalculator.jsx
+│   │   │   │           ├── constants
+│   │   │   │           │   └── calculatorConstants.js
+│   │   │   │           └── hooks
+│   │   │   │               └── usePricingCalculator.js
+│   │   │   ├── settings
+│   │   │   │   ├── SettingsPage.jsx
+│   │   │   │   └── components
+│   │   │   │       ├── CNCSettings.jsx
+│   │   │   │       ├── FinishingSettings.jsx
+│   │   │   │       ├── HardwareSettings.jsx
+│   │   │   │       ├── LaborSettings.jsx
+│   │   │   │       ├── MarginSettings.jsx
+│   │   │   │       ├── OverheadSettings.jsx
+│   │   │   │       ├── SheetSettings.jsx
+│   │   │   │       ├── UpholsterySettings.jsx
+│   │   │   │       └── WoodSettings.jsx
+│   │   │   └── timeline
+│   │   │       ├── TimelinePage.jsx
+│   │   │       ├── constants
+│   │   │       │   └── timelineConstants.js
+│   │   │       ├── data
+│   │   │       │   ├── employeesData.js
+│   │   │       │   └── timelineCalculations.js
+│   │   │       └── features
+│   │   │           ├── gantt
+│   │   │           │   ├── components
+│   │   │           │   │   ├── ChartHeader.jsx
+│   │   │           │   │   ├── ChartLegend.jsx
+│   │   │           │   │   ├── GanttChart.jsx
+│   │   │           │   │   ├── QuantityUpdateForm.jsx
+│   │   │           │   │   ├── SidePanel.jsx
+│   │   │           │   │   ├── TimelineModeToggle.jsx
+│   │   │           │   │   └── TimelineRow.jsx
+│   │   │           │   ├── hooks
+│   │   │           │   │   └── useTimelineDrag.js
+│   │   │           │   └── utils
+│   │   │           │       └── timelineUtils.js
+│   │   │           └── projectManagement
+│   │   │               ├── components
+│   │   │               │   ├── ProjectList.jsx
+│   │   │               │   └── TimelineForm.jsx
+│   │   │               ├── hooks
+│   │   │               │   ├── useModelData.js
+│   │   │               │   └── useProjectManagement.js
+│   │   │               └── utils
+│   │   ├── styles
+│   │   │   └── main.css
+│   │   └── utils
+│   │       └── marginUtils.js
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── directory_structure.txt
+└── server
+    ├── credentials
+    │   └── google-sheets.json
+    ├── googleSheets.js
+    ├── models
+    │   ├── CalculatorSettings.js
+    │   ├── ModelTemplate.js
+    │   ├── priceSheet.js
+    │   └── projects.js
+    ├── package-lock.json
+    ├── package.json
+    ├── routes
+    │   ├── modelTemplates.js
+    │   ├── priceSheet.js
+    │   ├── projects.js
+    │   └── settings.js
+    ├── scripts
+    │   └── importModelTimes.js
+    └── server.js
+
+41 directories, 92 files

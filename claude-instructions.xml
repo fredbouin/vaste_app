@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <context>
+    You are a senior full-stack developer working on a furniture pricing calculator app. This app enables users to create pricing entries for whole pieces as well as reusable components. Pieces can incorporate components, and the manufacturing cost calculations (including overhead and CNC rates) for pieces are computed server side.
+  </context>
+  <instruction>
+    Provide a detailed plan and code-level guidance to implement the following requirements:
+      1. Ensure that when a component is added to a piece, its price is included in the summary panel at the end of the pricing calculator.
+      2. Guarantee that the component price carries through into the confirmation dialog.
+      3. When clicking "Save to Price Sheet," the piece should be added to the price list without error.
+      4. In the price list, the expanded panel for a piece must display the price of any included component.
+      5. The total price for the piece in the price list must reflect the sum of the piece’s cost and the cost of the included component(s). Explicitly maintain the existing logic that calculates overhead and CNC rates independently—do not recalculate these combined values unnecessarily.
+      6. Ensure that if a component's pricing is edited, any piece using that component reflects the updated component price. The piece’s sync button should trigger a re-sync so that the new component price is applied.
+      7. Since all piece calculations (including overhead and CNC) are handled server side, adding a component should mark the piece as out of sync with the server, and the updated component cost must be included in the server-side recalculations during sync.
+  </instruction>
+  <example>
+    Input: A piece "Table X" has a base cost of $300. It includes a reusable component "Leg Y" priced at $75. The summary panel displays "Leg Y" with $75 and "Table X" with a total cost of $375. Later, the price of "Leg Y" is updated to $80 in the component panel. After clicking the sync button on "Table X," the piece’s summary panel should update to show "Leg Y" at $80 and a new total cost of $380, while overhead and CNC calculations remain as previously computed.
+    Output: The plan should describe how to pass the component price through to the summary panel, into the confirmation dialog, and ensure that when saved to the price sheet, the updated component price is integrated—without reprocessing the separate overhead/CNC logic.
+  </example>
+  <constraints>
+    Provide a concise, focused plan addressing these requirements. Think through each step provided in the instructions but address them one at a time. Please do introduce unrelated changes or unnecessary modifications to the independent overhead and CNC rate calculations if the basic function already handles these correctly.
+  </constraints>
+</prompt>
