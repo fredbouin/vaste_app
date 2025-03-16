@@ -1,387 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<prompt>
+
+<ProjectBrief>
+  <ProjectTitle>Furniture Pricing Application for Vaste</ProjectTitle>
   <context>
     You are a senior full-stack developer working on a furniture pricing calculator app. This app enables users to create pricing entries for whole pieces as well as reusable components. Pieces can incorporate components, and the manufacturing cost calculations (including overhead and CNC rates) for pieces are computed server side.
   </context>
-  
-  <instruction>
-    Implement the following requirements for the furniture pricing calculator app:
-    1. When a component is added to a piece, ensure its price is included in the summary panel at the end of the pricing calculator.
-    2. Guarantee that the component price carries through into the confirmation dialog.
-    3. When clicking "Save to Price Sheet," the piece should be added to the price list without error.
-    4. In the price list, the expanded panel for a piece must display the price of any included component.
-    5. The total price for the piece in the price list must reflect the sum of the piece's cost and the cost of the included component(s). Explicitly maintain the existing logic that calculates overhead and CNC rates independently—do not recalculate these combined values unnecessarily.
-    6. Ensure that if a component's pricing is edited, any piece using that component reflects the updated component price. The piece's sync button should trigger a re-sync so that the new component price is applied.
-    7. Since all piece calculations (including overhead and CNC) are handled server side, adding a component should mark the piece as out of sync with the server, and the updated component cost must be included in the server-side recalculations during sync.
-  </instruction>
-  
-  <implementation_steps>
-    <step number="1" title="Fix Schema in MongoDB Model">
-      <action>Correct the typo in priceSheet.js model from 'ccomponents' to 'components'</action>
-      <code_location>models/priceSheet.js - line approx ~60</code_location>
-      <code_change>
-        <before>ccomponents: [{</before>
-        <after>components: [{</after>
-      </code_change>
-    </step>
-    
-    <step number="2" title="Update SummaryPanel">
-      <action>Ensure component costs are properly calculated and included in the total cost</action>
-      <code_location>src/pages/pricing/components/SummaryPanel.jsx</code_location>
-      <code_snippets>
-        <snippet description="Component cost calculation">
-          // Calculate components cost (if applicable)
-          let componentsCost = 0;
-          if (components.length > 0) {
-            componentsCost = components.reduce((sum, comp) => sum + (Number(comp.cost) || 0), 0);
-          }
-          
-          // Calculate the grand total with components included
-          const grandTotal = pieceCosts.total + componentsCost;
-        </snippet>
-      </code_snippets>
-    </step>
-    
-    <step number="2.5" title="Fix Missing React Key Props in ConfirmationDialog">
-      <action>Add unique key props to list items in the ConfirmationDialog component to resolve React warnings</action>
-      <code_location>src/pages/pricing/components/ConfirmationDialog.jsx</code_location>
-      <code_snippets>
-        <snippet description="Add key props to cost breakdown items">
-          <div key="labor-cost" className="flex justify-between">
-            <span className="text-gray-600">Labor:</span>
-            <span>${pieceCosts.labor.cost.toFixed(2)}</span>
-          </div>
-          <div key="materials-cost" className="flex justify-between">
-            <span className="text-gray-600">Materials:</span>
-            <span>${pieceCosts.materials.total.toFixed(2)}</span>
-          </div>
-          {pieceCosts.cnc.cost > 0 && (
-            <div key="cnc-cost" className="flex justify-between">
-              <span className="text-gray-600">CNC:</span>
-              <span>${pieceCosts.cnc.cost.toFixed(2)}</span>
-            </div>
-          )}
-        </snippet>
-        <snippet description="Add reliable keys to component list">
-          {components.map(component => (
-            <div key={component._id || component.id || `component-${component.componentName}`} className="flex justify-between text-sm">
-              <div>
-                <span>{component.componentName}</span>
-                <span className="text-gray-500 ml-2 capitalize">
-                  ({component.componentType})
-                </span>
-              </div>
-              <span>${component.cost.toFixed(2)}</span>
-            </div>
-          ))}
-        </snippet>
-      </code_snippets>
-    </step>
-    
-    <step number="3" title="Update ConfirmationDialog">
-      <action>Ensure components are displayed and their costs included in the dialog</action>
-      <code_location>src/pages/pricing/components/ConfirmationDialog.jsx</code_location>
-      <code_snippets>
-        <snippet description="Component display in dialog">
-          {/* Components List */}
-          {!data.isComponent && components.length > 0 && (
-            <div className="bg-gray-50 p-4 rounded-md">
-              <h3 className="font-medium mb-2">Components Used</h3>
-              <div className="space-y-1">
-                {components.map(component => (
-                  <div key={component.id} className="flex justify-between text-sm">
-                    <div>
-                      <span>{component.componentName}</span>
-                      <span className="text-gray-500 ml-2 capitalize">
-                        ({component.componentType})
-                      </span>
-                    </div>
-                    <span>${component.cost.toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </snippet>
-      </code_snippets>
-    </step>
-    
-    <step number="4" title="Update ExpandedDetails">
-      <action>Ensure components are properly displayed in expanded details</action>
-      <code_location>src/pages/pricing/PriceSheet/components/ExpandedDetails.jsx</code_location>
-      <code_snippets>
-        <snippet description="Display components in expanded details">
-          {/* Components Section - Only shown for non-component items */}
-          {!isComponent && item.details?.components?.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <h5 className="font-medium text-gray-900 mb-2">Components Used</h5>
-              <div className="grid grid-cols-2 gap-4">
-                {item.details.components.map((component) => (
-                  <div key={component.id || component._id} className="flex justify-between items-baseline text-sm">
-                    <div className="text-gray-600">
-                      <span>{component.name || component.componentName || 'Unnamed'}</span>
-                      <span className="text-gray-400 ml-2 capitalize">({component.type || component.componentType || 'unknown'})</span>
-                    </div>
-                    <span className="text-gray-700 tabular-nums">
-                      ${component.cost ? component.cost.toFixed(2) : '0.00'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </snippet>
-      </code_snippets>
-    </step>
-    
-    <step number="5" title="Update PriceListItem Sync Function">
-      <action>Enhance the sync functionality to handle component updates</action>
-      <code_location>src/pages/pricing/PriceSheet/components/PriceListItem.jsx</code_location>
-      <code_snippets>
-        <snippet description="Updated handleSync function">
-          const handleSync = async (e) => {
-            e.stopPropagation();
-            if (!itemState._id) {
-              console.error('Cannot sync item without an ID');
-              setSyncError('Item has no ID');
-              return;
-            }
 
-            setIsSyncing(true);
-            setSyncError(null);
-            
-            try {
-              console.log('Syncing item:', itemState._id);
-              console.log('Using settings:', relevantSettings);
-              
-              // Pass isComponent flag so the API knows whether to also update dependent pieces
-              const updatedItem = await priceSheetApi.sync(
-                itemState._id, 
-                relevantSettings,
-                isComponent // Add the isComponent parameter
-              );
-              console.log("Sync successful, updated item:", updatedItem);
-              
-              // Update local state first
-              setItemState(updatedItem);
-              
-              // Then notify parent component
-              if (onSync) onSync(updatedItem);
-            } catch (error) {
-              console.error('Sync failed:', error);
-              setSyncError(error.message || 'Failed to sync');
-            } finally {
-              setIsSyncing(false);
-            }
-          };
-        </snippet>
-      </code_snippets>
-    </step>
-    
-    <step number="6" title="Update Server-side Sync Endpoint">
-      <action>Modify the server sync endpoint to handle component updates and propagate changes</action>
-      <code_location>routes/priceSheet.js - sync endpoint</code_location>
-      <code_snippets>
-        <snippet description="Enhanced sync endpoint with component cascading">
-          // Add isComponent parameter handling
-          router.post('/:id/sync', async (req, res) => {
-            try {
-              console.log('Syncing price sheet entry:', req.params.id);
-              const { currentSettings, isComponent } = req.body;
-              
-              if (!currentSettings) {
-                return res.status(400).json({ error: 'Current settings not provided' });
-              }
-              
-              console.log('Is component:', isComponent);
-              
-              // Rest of sync code...
-              
-              // Add this section to handle component updates
-              if (isComponent) {
-                console.log('This is a component - updating pieces that use it');
-                
-                try {
-                  // Find pieces that use this component
-                  const piecesUsingComponent = await PriceSheet.find({
-                    'details.components.id': req.params.id,
-                    isComponent: false
-                  });
-                  
-                  console.log(`Found ${piecesUsingComponent.length} pieces using this component`);
-                  
-                  // Update each piece with the new component cost
-                  for (const piece of piecesUsingComponent) {
-                    console.log(`Updating piece ${piece._id} with new component cost`);
-                    
-                    // Update the component in the piece
-                    const updatedComponents = piece.details.components.map(comp => {
-                      if (comp.id.toString() === req.params.id) {
-                        console.log(`Updating component cost from ${comp.cost} to ${updatedEntry.cost}`);
-                        return {
-                          ...comp,
-                          cost: updatedEntry.cost
-                        };
-                      }
-                      return comp;
-                    });
-                    
-                    // Calculate the new total component cost
-                    const componentsCost = updatedComponents.reduce((sum, comp) => sum + Number(comp.cost || 0), 0);
-                    
-                    // Calculate the new total cost
-                    const newTotalCost = (
-                      (piece.details.labor?.total || 0) + 
-                      (piece.details.materials?.total || 0) + 
-                      (piece.details.cnc?.cost || 0) + 
-                      (piece.details.overhead?.cost || 0) + 
-                      componentsCost
-                    );
-                    
-                    // Update the piece
-                    await PriceSheet.findByIdAndUpdate(
-                      piece._id,
-                      {
-                        'details.components': updatedComponents,
-                        cost: newTotalCost
-                      }
-                    );
-                    
-                    console.log(`Updated piece ${piece._id} with new total cost ${newTotalCost}`);
-                  }
-                } catch (err) {
-                  console.error('Error updating pieces that use this component:', err);
-                  // Continue with the response even if there's an error updating pieces
-                }
-              }
-              
-              res.json(updatedEntry);
-            } catch (error) {
-              console.error('Error syncing price sheet entry:', error);
-              res.status(500).json({ 
-                error: 'Failed to sync price sheet entry',
-                details: error.message 
-              });
-            }
-          });
-        </snippet>
-      </code_snippets>
-    </step>
-    
-    <step number="7" title="Update handleSubmitToPriceSheet">
-      <action>Ensure component data is correctly formatted before saving</action>
-      <code_location>src/pages/pricing/features/calculator/components/FurniturePricingCalculator.jsx</code_location>
-      <code_snippets>
-        <snippet description="Updated handleSubmitToPriceSheet">
-          const handleSubmitToPriceSheet = async (priceSheetEntry) => {
-            // Make sure components match the expected MongoDB schema format
-            if (priceSheetEntry.details && priceSheetEntry.details.components && Array.isArray(priceSheetEntry.details.components)) {
-              console.log('Before transformation:', JSON.stringify(priceSheetEntry.details.components));
-              priceSheetEntry.details.components = priceSheetEntry.details.components.map(component => {
-                const transformedComponent = {
-                  id: component._id || component.id || String(Date.now()),
-                  name: component.name || component.componentName || 'Unnamed',
-                  type: component.type || component.componentType || 'unknown',
-                  cost: Number(component.cost) || 0,
-                  quantity: component.quantity || 1
-                };
-                return transformedComponent;
-              });
-              console.log('After transformation:', JSON.stringify(priceSheetEntry.details.components));
-            }
-            
-            console.log('Price sheet entry before save:', priceSheetEntry);
-            
-            try {
-              console.log('About to submit price sheet entry');
-              
-              if (data.editingId) {
-                console.log('Updating existing entry:', data.editingId);
-                await priceSheetApi.update(data.editingId, priceSheetEntry);
-              } else {
-                console.log('Adding new entry to API');
-                const response = await priceSheetApi.add(priceSheetEntry);
-                console.log('API response:', response);
-              }
-              
-              console.log('Entry saved successfully, redirecting...');
-              localStorage.removeItem('calculatorAutosave');
-              window.location.href = '/price-sheet';
-            } catch (error) {
-              console.error('Error saving to price sheet:', error);
-              console.error('Error details:', error.response?.data);
-              alert('Failed to save to price sheet. Please check the console for details.');
-            }
-          };
-        </snippet>
-      </code_snippets>
-    </step>
-  </implementation_steps>
-  
-  <testing>
-    <test_case>
-      <description>Add component to a piece and verify it appears in the summary panel</description>
-      <steps>
-        1. Create a component with a known price
-        2. Create a new piece and add the component
-        3. Navigate to the summary panel
-        4. Verify the component is listed with its correct price
-        5. Verify the total includes the component cost
-      </steps>
-    </test_case>
-    
-    <test_case>
-      <description>Verify components appear in confirmation dialog</description>
-      <steps>
-        1. Create a piece with components
-        2. Proceed to the confirmation dialog
-        3. Verify components are listed with their prices
-        4. Verify the total includes component costs
-      </steps>
-    </test_case>
-    
-    <test_case>
-      <description>Test saving a piece with components</description>
-      <steps>
-        1. Create a piece with components
-        2. Save to price sheet
-        3. Verify the piece appears in the price list
-        4. Expand the piece details
-        5. Verify components are displayed with correct prices
-      </steps>
-    </test_case>
-    
-    <test_case>
-      <description>Test component price updates</description>
-      <steps>
-        1. Create a component
-        2. Create a piece using that component
-        3. Save both to price sheet
-        4. Edit the component price
-        5. Sync the component
-        6. Verify the piece shows as out of sync
-        7. Sync the piece
-        8. Verify the piece now shows the updated component price
-        9. Verify the piece's total cost is updated accordingly
-      </steps>
-    </test_case>
-  </testing>
-  
-  <example>
-    <input>
-      A piece "Table X" has a base cost of $300. It includes a reusable component "Leg Y" priced at $75. The summary panel displays "Leg Y" with $75 and "Table X" with a total cost of $375. Later, the price of "Leg Y" is updated to $80 in the component panel. After clicking the sync button on "Table X," the piece's summary panel should update to show "Leg Y" at $80 and a new total cost of $380, while overhead and CNC calculations remain as previously computed.
-    </input>
-    <expected_output>
-      The implementation should ensure that when the component "Leg Y" is updated to $80, and the sync button on "Table X" is clicked, the summary panel updates to show:
-      1. Component "Leg Y" with a cost of $80
-      2. The total cost of "Table X" as $380 ($300 base cost + $80 component cost)
-      3. The overhead and CNC calculations remain unchanged from their previous values
-    </expected_output>
-  </example>
-  
-  <constraints>
-    <constraint>Maintain the existing logic for overhead and CNC calculations - do not recalculate these values unnecessarily</constraint>
-    <constraint>Ensure backward compatibility with existing pieces in the database</constraint>
-    <constraint>Keep the UI consistent with the existing design</constraint>
-  </constraints>
-</prompt>
+  <ProjectDescription>
+    An application designed to streamline furniture pricing for Vaste, incorporating a modular calculator, adjustable settings, and a comprehensive price list system. This application is utilized to efficiently calculate the production cost of furniture items, including customizable pieces and reusable components.
+  </ProjectDescription>
+
+  <Modules>
+    <Module name="Calculator">
+      <Description>
+        The calculator offers two distinct modes: Pieces and Components. Both modes share the same functionality, with the Components mode allowing the creation of reusable parts to be integrated into multiple furniture pieces.
+      </Description>
+      <Panels>
+        <Panel name="Piece Information">
+          <Functionality>
+            Captures basic details, distinguishing between a piece or a component, managing collection details, piece numbers, and variations.
+          </Functionality>
+        </Panel>
+        <Panel name="Labor">
+          <Functionality>
+            Allows input of labor hours segmented by production categories:
+            <Categories>
+              <Category name="Stock Production" rate="$21.00/hr"/>
+              <Category name="CNC Operator" rate="$25.00/hr"/>
+              <Category name="Assembly" rate="$25.00/hr"/>
+              <Category name="Finishing" rate="$25.00/hr"/>
+              <Category name="Upholstery" rate="$24.00/hr"/>
+            </Categories>
+            Includes an adjustable surcharge percentage (default 8%).
+          </Functionality>
+        </Panel>
+        <Panel name="Materials">
+          <Functionality>
+            Manages material costs subdivided into the following categories:
+            <Categories>
+              <Category name="Wood Materials"/>
+              <Category name="Sheet Materials"/>
+              <Category name="Upholstery Materials"/>
+              <Category name="Hardware"/>
+              <Category name="Finishing Materials"/>
+            </Categories>
+          </Functionality>
+        </Panel>
+        <Panel name="CNC Machine">
+          <Functionality>
+            Captures CNC machine runtime and calculates total machining costs based on the input runtime and a defined hourly rate ($11.39/hr).
+          </Functionality>
+        </Panel>
+        <Panel name="Summary">
+          <Functionality>
+            Consolidates and presents an itemized summary of costs, including labor, materials, CNC machine, overhead, and any components used. Provides total calculated costs clearly and concisely.
+          </Functionality>
+        </Panel>
+      </Panels>
+    </Module>
+
+    <Module name="Settings">
+      <Description>
+        Allows users to configure and persist rates and variables that the calculator relies upon, influencing the calculations across the entire application. Changes to settings automatically trigger synchronization of existing price calculations to maintain data consistency.
+      </Description>
+      <SettingsCategories>
+        <Category name="Labor Rates">
+          <Subcategories>
+            <Rate name="Labor Surcharge (%)" value="8.00%"/>
+            <Rate name="Stock Production" value="$21.00/hr"/>
+            <Rate name="CNC Operator" value="$25.00/hr"/>
+            <Rate name="Assembly" value="$25.00/hr"/>
+            <Rate name="Finishing" value="$25.00/hr"/>
+            <Rate name="Upholstery" value="$24.00/hr"/>
+          </Subcategories>
+        </Category>
+        <Category name="CNC Machine Rate">
+          <Subcategories>
+            <Rate name="Total Machine Rate" value="$11.39/hr"/>
+            <Rate name="Base Rate" value="$10.00/hr"/>
+            <Rate name="Added Tool Cost" value="$0.93/hr"/>
+            <Rate name="Added Equipment Cost" value="$0.46/hr"/>
+            <Rate name="Monthly Operating Hours" value="180"/>
+          </Subcategories>
+        </Category>
+        <Category name="Materials Pricing">
+          <Materials>
+            <MaterialType name="Wood Species">
+              <Item name="White Oak">
+                <Dimensions thickness="4/4" cost="$7.39/BF"/>
+                <Dimensions thickness="5/4" cost="$8.79/BF"/>
+                <Dimensions thickness="6/4" cost="$8.99/BF"/>
+                <Dimensions thickness="8/4" cost="$10.69/BF"/>
+              </Item>
+              <!-- Additional species structured similarly -->
+            </MaterialType>
+            <MaterialType name="Sheet Materials">
+              <Item name="Baltic Birch Plywood" size="4x8" type="plywood" thickness="3/8" cost="$69.59/sheet"/>
+              <!-- Additional sheet materials structured similarly -->
+            </MaterialType>
+            <MaterialType name="Upholstery Materials">
+              <Item name="Leather Standard" type="leather" cost="$7.7/sq ft"/>
+              <!-- Additional upholstery materials structured similarly -->
+            </MaterialType>
+            <MaterialType name="Hardware">
+              <Item name="jcb(70mm)" pack="10 units" cost="$6.7"/>
+              <!-- Additional hardware items structured similarly -->
+            </MaterialType>
+            <MaterialType name="Finishing Materials">
+              <Item name="Osmo Oil Stain" coverage="258 ft²/L" cost="$108.30/L"/>
+              <!-- Additional finishing materials structured similarly -->
+            </MaterialType>
+          </Materials>
+        </Category>
+        <Category name="Overhead">
+          <Parameters>
+            <Parameter name="Monthly Overhead" value="$30,000.00"/>
+            <Parameter name="Number of Employees" value="5"/>
+            <Parameter name="Monthly Hours per Employee" value="120"/>
+            <Parameter name="Monthly CNC Hours" value="140"/>
+            <Parameter name="Calculated Recovery Rate" value="$40.54/hr"/>
+          </Parameters>
+        </Category>
+        <Category name="Margin Settings">
+          <Parameters>
+            <Parameter name="Wholesale Margin" value="10.0%" markup="×1.11"/>
+            <Parameter name="MSRP Margin" value="30.0%" markup="×1.43"/>
+          </Parameters>
+        </Category>
+      </SettingsCategories>
+    </Module>
+
+    <Module name="Price Sheet">
+      <Description>
+        Provides a categorized, comprehensive list of priced furniture pieces and reusable components. Supports functionalities to copy, edit, delete, and synchronize item costs based on updated calculator settings and edited components.
+      </Description>
+      <Functionalities>
+        <Functionality>View itemized cost breakdowns</Functionality>
+        <Functionality>Sort and manage pieces by collection</Functionality>
+        <Functionality>Sync costs after settings adjustments</Functionality>
+      </Functionalities>
+    </Module>
+  </Modules>
+
+  <TechnicalSpecifications>
+    <FrontEnd>
+      <Technologies>
+        <Technology>React.js (Vite)</Technology>
+        <Technology>Tailwind CSS</Technology>
+      </Technologies>
+      <Structure>Structured into clear components and hooks, leveraging state management via useState and useEffect for dynamic UI behavior.</Structure>
+    </FrontEnd>
+    <BackEnd>
+      <Technologies>
+        <Technology>Express.js Server</Technology>
+        <Technology>MongoDB</Technology>
+      </Technologies>
+      <DataManagement>
+        <Method>Stores settings, price sheet entries, model templates, and projects.</Method>
+        <Synchronization>API endpoints facilitate real-time synchronization and data consistency.</Synchronization>
+      </DataManagement>
+    </BackEnd>
+  </TechnicalSpecifications>
+
+  <DevelopmentRequirements>
+    <Requirement>Ensure robust error handling and fallback mechanisms</Requirement>
+    <Requirement>Maintain high clarity and UX for non-technical users</Requirement>
+    <Requirement>Scalable architecture accommodating future feature additions</Requirement>
+  </DevelopmentRequirements>
+
+  <UseCaseExamples>
+    <Example>Creating a reusable "seat" component used in multiple chairs.</Example>
+    <Example>Adjusting the hourly rate of CNC operation and synchronizing all affected furniture pieces and components instantly.</Example>
+  </UseCaseExamples>
+
+</ProjectBrief>
