@@ -21,6 +21,24 @@ export const calculateFinishingCost = (finishing) => {
 };
 
 /**
+ * Calculate sheet materials cost
+ * @param {Array} sheets - Sheet materials data
+ * @returns {Number} - Total sheet materials cost
+ */
+export const calculateSheetCost = (sheets) => {
+  if (!sheets || !Array.isArray(sheets) || sheets.length === 0) {
+    return 0;
+  }
+  
+  return sheets.reduce((sum, sheet) => {
+    if (!sheet.pricePerSheet) return sum;
+    const quantity = Number(sheet.quantity || 1);
+    const pricePerSheet = Number(sheet.pricePerSheet || 0);
+    return sum + (quantity * pricePerSheet);
+  }, 0);
+};
+
+/**
  * Calculate total costs for a furniture piece or component
  * @param {Object} props - Input props containing data, settings, labor hours and components
  * @returns {Object} - Calculated costs for all aspects of the piece
@@ -68,10 +86,18 @@ export const calculateTotalCosts = ({ data, settings, totalLaborHours, calculate
   const woodWasteCost = woodBaseCost * (woodWasteFactor / 100);
   const totalWoodCost = woodBaseCost + woodWasteCost;
 
+  // Sheet materials cost calculation
+  const sheetEntries = data.materials?.sheet || [];
+  const sheetCost = sheetEntries.reduce((sum, sheet) => {
+    const quantity = Number(sheet.quantity || 1);
+    const pricePerSheet = Number(sheet.pricePerSheet || 0);
+    return sum + (quantity * pricePerSheet);
+  }, 0);
+
   // Upholstery calculations
   const upholsteryEntries = data.materials?.upholstery?.items || [];
   const upholsteryCost = upholsteryEntries.reduce(
-    (sum, item) => sum + (Number(item.squareFeet) * Number(item.costPerSqFt) || 0), 
+    (sum, item) => sum + (Number(item.squareFeet || 0) * Number(item.costPerSqFt || 0)), 
     0
   );
 
@@ -85,15 +111,8 @@ export const calculateTotalCosts = ({ data, settings, totalLaborHours, calculate
   // Finishing cost
   const finishingCost = calculateFinishingCost(data.materials?.finishing || {});
 
-  // Sheet materials cost
-  const sheetEntries = data.materials?.sheet || [];
-  const sheetCost = sheetEntries.reduce(
-    (sum, sheet) => sum + ((Number(sheet.quantity) || 1) * (Number(sheet.pricePerSheet) || 0)),
-    0
-  );
-
-  // Total materials cost
-  const totalMaterialsCost = totalWoodCost + upholsteryCost + hardwareCost + finishingCost + sheetCost;
+  // Total materials cost - ensure sheet cost is included
+  const totalMaterialsCost = totalWoodCost + sheetCost + upholsteryCost + hardwareCost + finishingCost;
 
   // CNC cost
   const cncRuntime = Number(data.cnc?.runtime) || 0;
@@ -114,6 +133,20 @@ export const calculateTotalCosts = ({ data, settings, totalLaborHours, calculate
                      cncCost + 
                      overheadCost + 
                      componentsCost;
+
+  // For debugging
+  console.log('Total cost breakdown:', {
+    labor: baseLaborCost + surchargeCost,
+    wood: totalWoodCost,
+    sheet: sheetCost,
+    upholstery: upholsteryCost,
+    hardware: hardwareCost,
+    finishing: finishingCost,
+    cnc: cncCost,
+    overhead: overheadCost,
+    components: componentsCost,
+    grandTotal
+  });
 
   return {
     pieceCosts: {

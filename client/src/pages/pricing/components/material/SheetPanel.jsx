@@ -19,8 +19,9 @@ const SheetPanel = ({ sheetMaterials = [], onChange }) => {
       {
         id: Date.now(),
         sheetId: '',
-        piecesPerSheet: '',
-        numSheets: '1'
+        quantity: '1',
+        pricePerSheet: '',
+        name: ''
       }
     ]);
   };
@@ -45,6 +46,10 @@ const SheetPanel = ({ sheetMaterials = [], onChange }) => {
           ...newMaterials[index],
           sheetId: value,
           name: selectedSheet.name,
+          thickness: selectedSheet.thickness,
+          size: selectedSheet.size,
+          material: selectedSheet.material,
+          grade: selectedSheet.grade,
           pricePerSheet: selectedSheet.pricePerSheet
         };
       }
@@ -53,21 +58,12 @@ const SheetPanel = ({ sheetMaterials = [], onChange }) => {
     onChange(newMaterials);
   };
 
-  // Individual sheet cost calculations
-  const calculateCostPerPiece = (material) => {
-    if (!material.piecesPerSheet || !material.pricePerSheet) {
+  // Calculate total cost for a sheet entry
+  const calculateItemCost = (material) => {
+    if (!material.pricePerSheet || !material.quantity) {
       return 0;
     }
-    return Number(material.pricePerSheet) / Number(material.piecesPerSheet);
-  };
-
-  const calculateTotalCost = (material) => {
-    if (!material.pricePerSheet || !material.numSheets || !material.piecesPerSheet) {
-      return 0;
-    }
-    const costPerPiece = calculateCostPerPiece(material);
-    const totalPieces = Number(material.piecesPerSheet);
-    return costPerPiece * totalPieces;
+    return Number(material.pricePerSheet) * Number(material.quantity);
   };
 
   // Use the centralized calculation service for total cost
@@ -89,7 +85,7 @@ const SheetPanel = ({ sheetMaterials = [], onChange }) => {
       </div>
 
       {sheetMaterials.map((material, index) => (
-        <div key={material.id} className="grid grid-cols-6 gap-4 p-4 bg-gray-50 rounded-lg">
+        <div key={material.id || index} className="grid grid-cols-6 gap-4 p-4 bg-gray-50 rounded-lg">
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700">
               Material
@@ -110,28 +106,29 @@ const SheetPanel = ({ sheetMaterials = [], onChange }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Pieces per Sheet
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={material.piecesPerSheet || ''}
-              onChange={(e) => updateSheetMaterial(index, 'piecesPerSheet', e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-              placeholder="e.g., 4"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
               Number of Sheets
             </label>
             <input
               type="number"
               min="1"
-              value={material.numSheets || ''}
-              onChange={(e) => updateSheetMaterial(index, 'numSheets', e.target.value)}
+              value={material.quantity || ''}
+              onChange={(e) => updateSheetMaterial(index, 'quantity', e.target.value)}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Price per Sheet
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={material.pricePerSheet || ''}
+              onChange={(e) => updateSheetMaterial(index, 'pricePerSheet', e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              disabled={!!material.sheetId}
             />
           </div>
 
@@ -140,12 +137,7 @@ const SheetPanel = ({ sheetMaterials = [], onChange }) => {
               Cost
             </label>
             <div className="mt-1 p-2 bg-gray-100 rounded-md text-sm">
-              <div className="text-gray-500">
-                ${calculateCostPerPiece(material).toFixed(2)}/piece
-              </div>
-              <div>
-                ${calculateTotalCost(material).toFixed(2)} total
-              </div>
+              <div>${calculateItemCost(material).toFixed(2)}</div>
             </div>
           </div>
 

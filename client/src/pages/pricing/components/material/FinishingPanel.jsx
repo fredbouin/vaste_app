@@ -13,7 +13,7 @@ const FinishingPanel = ({ finishing = {}, onChange }) => {
     }
   }, []);
 
-  // Use the centralized calculation function
+  // Calculate finishing total cost, correctly using all required parameters
   const calculateFinishingTotalCost = () => {
     if (!finishing.materialId || !finishing.surfaceArea || !finishing.coats || !finishing.coverage) {
       return 0;
@@ -24,15 +24,16 @@ const FinishingPanel = ({ finishing = {}, onChange }) => {
 
     const costPerLiter = selectedMaterial.containerCost / selectedMaterial.containerSize;
     
-    // Call the centralized calculation function
-    return calculateFinishingCost({
+    // Create a complete finishing object for the calculation
+    const finishingParams = {
       materialId: finishing.materialId,
       surfaceArea: Number(finishing.surfaceArea),
       coats: Number(finishing.coats),
       coverage: Number(finishing.coverage),
-      costPerLiter: costPerLiter,
-      wasteFactor: wasteFactor
-    });
+      costPerLiter: costPerLiter
+    };
+    
+    return calculateFinishingCost(finishingParams);
   };
 
   return (
@@ -54,7 +55,7 @@ const FinishingPanel = ({ finishing = {}, onChange }) => {
                 onChange({
                   ...finishing,
                   materialId: e.target.value,
-                  name: selectedMaterial.name,
+                  materialName: selectedMaterial.name,
                   coverage: selectedMaterial.coverage,
                   costPerLiter: selectedMaterial.containerCost / selectedMaterial.containerSize
                 });
@@ -62,7 +63,7 @@ const FinishingPanel = ({ finishing = {}, onChange }) => {
                 onChange({
                   ...finishing,
                   materialId: '',
-                  name: '',
+                  materialName: '',
                   coverage: '',
                   costPerLiter: ''
                 });

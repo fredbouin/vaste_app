@@ -13,10 +13,22 @@
  * @returns {Object} Calculated labor costs and breakdown
  */
 export const calculateLabor = (laborData, settings) => {
+  if (!laborData) {
+    return {
+      breakdown: [],
+      baseCost: 0,
+      surchargeCost: 0,
+      totalCost: 0,
+      totalHours: 0
+    };
+  }
+
   // Create labor breakdown entries from input data
   const breakdown = Object.entries(laborData)
     .filter(([key]) => key !== 'surcharge') // Skip surcharge entry
     .map(([key, value]) => {
+      if (!value) return null;
+
       let type;
       // Convert camelCase to Title Case
       switch(key) {
@@ -39,7 +51,7 @@ export const calculateLabor = (laborData, settings) => {
         cost: hours * rate
       };
     })
-    .filter(entry => entry.hours > 0); // Remove entries with zero hours
+    .filter(Boolean); // Remove null entries
 
   // Calculate base labor cost
   const baseCost = breakdown.reduce((sum, entry) => sum + entry.cost, 0);
@@ -84,6 +96,9 @@ export const calculateWoodCost = (woodEntries, settings) => {
     };
   }
 
+  // Get waste factor from settings, default to 0 if not present
+  const woodWasteFactor = Number(settings?.materials?.woodWasteFactor) || 0;
+
   // Process wood entries with latest costs from settings
   const processedEntries = woodEntries.map(wood => {
     // Skip entries without species or thickness info
@@ -117,15 +132,15 @@ export const calculateWoodCost = (woodEntries, settings) => {
     return sum + (boardFeet * cost);
   }, 0);
   
-  // Calculate waste
-  const woodWasteFactor = Number(settings?.materials?.woodWasteFactor) || 0;
+  // Calculate waste based on the waste factor we retrieved earlier
   const wasteCost = baseCost * (woodWasteFactor / 100);
   
   return {
     entries: processedEntries,
     baseCost,
     wasteCost,
-    totalCost: baseCost + wasteCost
+    totalCost: baseCost + wasteCost,
+    woodWasteFactor // Include the waste factor for reference
   };
 };
 

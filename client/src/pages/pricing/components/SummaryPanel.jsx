@@ -89,6 +89,14 @@ const SummaryPanel = ({
     components
   });
 
+  // Log sheet costs to help debug
+  useEffect(() => {
+    if (data.materials?.sheet && data.materials.sheet.length > 0) {
+      console.log('Sheet materials in data:', data.materials.sheet);
+      console.log('Sheet cost in pieceCosts:', pieceCosts.materials.sheet.cost);
+    }
+  }, [data.materials?.sheet, pieceCosts]);
+
   const CostSection = ({ title, items, total, className = '' }) => (
     <div className={`pb-4 mb-4 ${className}`}>
       <h3 className="font-medium mb-3">{title}</h3>
@@ -142,17 +150,17 @@ const SummaryPanel = ({
                   ? [{ label: 'Wood Waste', value: pieceCosts.materials.wood.wasteCost, isIndented: true }] 
                   : [])
               ] : []),
+              ...((data.materials?.sheet && data.materials.sheet.length > 0) ? [{
+                label: 'Sheet Materials',
+                value: pieceCosts.materials.sheet.cost
+              }] : []),
               ...((data.materials?.upholstery?.items && data.materials.upholstery.items.length > 0) ? [{
                 label: 'Upholstery',
-                value: data.materials.upholstery.items.reduce(
-                  (sum, item) => sum + (Number(item.squareFeet) * Number(item.costPerSqFt)), 0
-                )
+                value: pieceCosts.materials.upholstery.cost
               }] : []),
               ...((data.materials?.hardware && data.materials.hardware.length > 0) ? [{
                 label: 'Hardware',
-                value: data.materials.hardware.reduce(
-                  (sum, item) => sum + (Number(item.quantity) * Number(item.pricePerUnit)), 0
-                )
+                value: pieceCosts.materials.hardware.cost
               }] : []),
               ...((data.materials?.finishing && data.materials.finishing.materialId) ? [{
                 label: 'Finishing',
@@ -233,9 +241,10 @@ const SummaryPanel = ({
               materials: {
                 wood: data.materials.wood,
                 computedWood: pieceCosts.materials.wood,
-                upholstery: pieceCosts.materials.upholstery,
+                upholstery: data.materials.upholstery,
                 hardware: data.materials.hardware,
                 finishing: data.materials.finishing,
+                sheet: data.materials.sheet,
                 total: pieceCosts.materials.total
               },
               cnc: pieceCosts.cnc,
