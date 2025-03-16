@@ -5,6 +5,8 @@ import HardwarePanel from './material/HardwarePanel';
 import SheetPanel from './material/SheetPanel';
 import UpholsteryPanel from './material/UpholsteryPanel';
 import FinishingPanel from './material/FinishingPanel';
+import { calculateWoodCost } from '../../../services/calculationService';
+
 
 const MaterialsPanel = ({ materials, onMaterialsChange, setActivePanel }) => {
   // Initialize localMaterials only once from the prop
@@ -72,12 +74,10 @@ const MaterialsPanel = ({ materials, onMaterialsChange, setActivePanel }) => {
   };
 
   // Compute wood total cost
-  const woodWasteFactor = savedSettings ? Number(savedSettings.materials.woodWasteFactor) : 0;
-  const woodBaseCost = localMaterials.wood.reduce((sum, wood) => {
-    return sum + ((Number(wood.boardFeet) || 0) * (Number(wood.cost) || 0));
-  }, 0);
-  const woodWasteCost = woodBaseCost * (woodWasteFactor / 100);
-  const totalWoodCost = woodBaseCost + woodWasteCost;
+  const woodCostResult = calculateWoodCost(localMaterials.wood, savedSettings);
+const woodBaseCost = woodCostResult.baseCost;
+const woodWasteCost = woodCostResult.wasteCost;
+const totalWoodCost = woodCostResult.totalCost;
 
   const handleSaveAndContinue = () => {
     onMaterialsChange(localMaterials);

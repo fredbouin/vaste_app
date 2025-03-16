@@ -1,6 +1,6 @@
-// src/pages/pricing/components/HardwarePanel.jsx
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { calculateHardwareCost } from '../../../../services/calculationService';
 
 const HardwarePanel = ({ hardwareItems = [], onChange }) => {  // Add default empty array
   const [availableHardware, setAvailableHardware] = useState([]);
@@ -54,8 +54,18 @@ const HardwarePanel = ({ hardwareItems = [], onChange }) => {  // Add default em
     onChange(newItems);
   };
 
+  // Use the centralized calculation service instead of local calculation
   const calculateItemCost = (item) => {
-    return (item.quantity * (item.pricePerUnit || 0)).toFixed(2);
+    if (!item.quantity || !item.pricePerUnit) {
+      return 0;
+    }
+    
+    return Number(item.quantity) * Number(item.pricePerUnit);
+  };
+
+  // Calculate total hardware cost using the centralized calculation service
+  const calculateTotalHardwareCost = () => {
+    return calculateHardwareCost(hardwareItems);
   };
 
   return (
@@ -109,7 +119,7 @@ const HardwarePanel = ({ hardwareItems = [], onChange }) => {  // Add default em
               Cost
             </label>
             <div className="mt-1 block w-full p-2 bg-gray-100 rounded-md">
-              ${calculateItemCost(item)}
+              ${calculateItemCost(item).toFixed(2)}
             </div>
           </div>
 
@@ -129,7 +139,7 @@ const HardwarePanel = ({ hardwareItems = [], onChange }) => {  // Add default em
         <div className="flex justify-between">
           <span className="font-medium">Total Hardware Cost:</span>
           <span>
-            ${(hardwareItems || []).reduce((sum, item) => sum + Number(calculateItemCost(item)), 0).toFixed(2)}
+            ${calculateTotalHardwareCost().toFixed(2)}
           </span>
         </div>
       </div>

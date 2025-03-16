@@ -1,5 +1,5 @@
-// src/pages/pricing/components/material/FinishingPanel.jsx
 import React, { useState, useEffect } from 'react';
+import { calculateFinishingCost } from '../../../../services/calculationService';
 
 const FinishingPanel = ({ finishing = {}, onChange }) => {
   const [availableFinishes, setAvailableFinishes] = useState([]);
@@ -13,26 +13,26 @@ const FinishingPanel = ({ finishing = {}, onChange }) => {
     }
   }, []);
 
-  const calculateFinishingCost = () => {
-    if (!finishing.materialId || !finishing.surfaceArea || !finishing.coats) {
+  // Use the centralized calculation function
+  const calculateFinishingTotalCost = () => {
+    if (!finishing.materialId || !finishing.surfaceArea || !finishing.coats || !finishing.coverage) {
       return 0;
     }
-
+    
     const selectedMaterial = availableFinishes.find(m => m.id === Number(finishing.materialId));
     if (!selectedMaterial) return 0;
 
-    // Convert square inches to square feet
-    const areaInSqFt = Number(finishing.surfaceArea) / 144;
-    
-    // Calculate liters needed for the job
-    const litersNeeded = (areaInSqFt * Number(finishing.coats)) / Number(selectedMaterial.coverage);
-    
-    // Add waste factor
-    const litersWithWaste = litersNeeded * (1 + (wasteFactor / 100));
-    
-    // Calculate cost using price per liter
     const costPerLiter = selectedMaterial.containerCost / selectedMaterial.containerSize;
-    return litersWithWaste * costPerLiter;
+    
+    // Call the centralized calculation function
+    return calculateFinishingCost({
+      materialId: finishing.materialId,
+      surfaceArea: Number(finishing.surfaceArea),
+      coats: Number(finishing.coats),
+      coverage: Number(finishing.coverage),
+      costPerLiter: costPerLiter,
+      wasteFactor: wasteFactor
+    });
   };
 
   return (
@@ -145,7 +145,7 @@ const FinishingPanel = ({ finishing = {}, onChange }) => {
           </div>
           <div className="pt-2 mt-2 border-t flex justify-between font-medium">
             <span>Total Finishing Cost:</span>
-            <span>${calculateFinishingCost().toFixed(2)}</span>
+            <span>${calculateFinishingTotalCost().toFixed(2)}</span>
           </div>
         </div>
       )}

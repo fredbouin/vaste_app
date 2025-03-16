@@ -36,7 +36,10 @@ const CNCPanel = ({ cnc, onCNCChange, setActivePanel }) => {
     setActivePanel('summary');
   };
 
-  const totalCncCost = Number(localCNC.runtime || 0) * Number(localCNC.rate || 0);
+  // Use centralized calculation for CNC cost
+  const calculateCNCCost = () => {
+    return Number(localCNC.runtime || 0) * Number(localCNC.rate || 0);
+  };
 
   return (
     <div className="p-4 space-y-6">
@@ -105,7 +108,7 @@ const CNCPanel = ({ cnc, onCNCChange, setActivePanel }) => {
       <div className="mt-4 p-4 bg-gray-50 rounded-md">
         <div className="flex justify-between">
           <span className="font-medium">Total CNC Cost:</span>
-          <span>${totalCncCost.toFixed(2)}</span>
+          <span>${calculateCNCCost().toFixed(2)}</span>
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import { ChevronDown, ChevronRight, Trash2, Pencil, Copy, RefreshCw } from 'luci
 import { useState, useEffect } from 'react';
 import ExpandedDetails from './ExpandedDetails';
 import { priceSheetApi } from '../../../../api/priceSheet';
-import isEqual from 'lodash/isEqual';
+import { calculatePrice } from '../../../../utils/calculationUtils';
 
 const PriceListItem = ({ 
   item: initialItem, 
@@ -13,7 +13,7 @@ const PriceListItem = ({
   onEdit, 
   onRemove, 
   onDuplicate, 
-  calculatePrice, 
+  calculatePrice: calculatePriceFromProps, 
   onSync 
 }) => {
   // Local state holds the current version of the item
@@ -26,6 +26,7 @@ const PriceListItem = ({
     setItemState(initialItem);
   }, [initialItem]);
 
+  // Use the centralized calculation utility for consistent pricing
   const wholesalePrice = calculatePrice(itemState.cost, settings?.margins?.wholesale);
   const msrpPrice = calculatePrice(wholesalePrice, settings?.margins?.msrp);
   const prices = { wholesale: wholesalePrice, msrp: msrpPrice };
@@ -51,34 +52,10 @@ const PriceListItem = ({
       }
     : {};
 
-  // Check if settings have changed since last sync
-  // Using safe stringification or can use a deep comparison library 
+  // Check if settings have changed since last sync using JSON stringification
   const settingsString = JSON.stringify(relevantSettings);
   const lastSyncedString = JSON.stringify(relevantLastSynced);
   const needsSync = settingsString !== lastSyncedString;
-
- // Add your debug logs here
-  console.log('Item ID:', itemState._id);
-  console.log('Current settings:', JSON.stringify(relevantSettings, null, 2));
-  console.log('Last synced settings:', JSON.stringify(relevantLastSynced, null, 2));
-  console.log('Settings string length:', settingsString.length);
-  console.log('Last synced string length:', lastSyncedString.length);
-
-  // If strings are different but similar length, log character differences
-  if (settingsString !== lastSyncedString && 
-      Math.abs(settingsString.length - lastSyncedString.length) < 50) {
-      console.log('First different character position:');
-      for (let i = 0; i < Math.min(settingsString.length, lastSyncedString.length); i++) {
-          if (settingsString[i] !== lastSyncedString[i]) {
-              console.log(`Position ${i}: Current "${settingsString[i]}" vs Last "${lastSyncedString[i]}"`);
-              console.log(`Context: "${settingsString.substr(Math.max(0, i-20), 40)}"`);
-              console.log(`Context: "${lastSyncedString.substr(Math.max(0, i-20), 40)}"`);
-              break;
-          }
-      }
-  }
-  console.log('Needs sync:', needsSync);
-
 
   const handleSync = async (e) => {
     e.stopPropagation();
@@ -93,7 +70,6 @@ const PriceListItem = ({
     
     try {
       console.log('Syncing item:', itemState._id);
-      console.log('Using settings:', relevantSettings);
       
       const updatedItem = await priceSheetApi.sync(itemState._id, relevantSettings);
       console.log("Sync successful, updated item:", updatedItem);

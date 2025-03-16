@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { calculateUpholsteryCost } from '../../../../services/calculationService';
 
 const UpholsteryPanel = ({ upholstery = {}, onChange }) => {
   const [availableMaterials, setAvailableMaterials] = useState([]);
@@ -13,23 +14,23 @@ const UpholsteryPanel = ({ upholstery = {}, onChange }) => {
   }, []);
 
   const addUpholsteryItem = () => {
-  const items = upholstery.items || [];
-  onChange({
-    ...upholstery,
-    items: [
-      ...items,
-      {
-        id: Date.now(), // keep for frontend tracking
-        materialId: '', // keep for frontend reference
-        name: '',
-        type: 'upholstery',
-        squareFeet: '',
-        costPerSqFt: '',
-        cost: 0
-      }
-    ]
-  });
-};
+    const items = upholstery.items || [];
+    onChange({
+      ...upholstery,
+      items: [
+        ...items,
+        {
+          id: Date.now(), // keep for frontend tracking
+          materialId: '', // keep for frontend reference
+          name: '',
+          type: 'upholstery',
+          squareFeet: '',
+          costPerSqFt: '',
+          cost: 0
+        }
+      ]
+    });
+  };
 
   const removeUpholsteryItem = (index) => {
     const items = [...(upholstery.items || [])];
@@ -65,16 +66,21 @@ const UpholsteryPanel = ({ upholstery = {}, onChange }) => {
     onChange({ ...upholstery, items });
   };
 
+  // Individual item cost calculation - kept for display purposes
   const calculateItemCost = (item) => {
     if (!item.squareFeet || !item.costPerSqFt) return 0;
     return Number(item.squareFeet) * Number(item.costPerSqFt);
   };
 
+  // Use the centralized calculation service for total upholstery cost
+  const calculateTotalUpholsteryCost = () => {
+    return calculateUpholsteryCost(upholstery);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium mb-4">Upholstery Materials</h3>
-
+        <h3 className="text-lg font-medium mb-4">Upholstery Materials</h3>
         <button
           onClick={addUpholsteryItem}
           className="flex items-center text-blue-600 hover:text-blue-700"
@@ -83,8 +89,6 @@ const UpholsteryPanel = ({ upholstery = {}, onChange }) => {
           Add Material
         </button>
       </div>
-
-
 
       {(upholstery.items || []).map((item, index) => (
         <div key={item.id} className="grid grid-cols-5 gap-4 p-4 bg-gray-50 rounded-lg">
@@ -147,7 +151,7 @@ const UpholsteryPanel = ({ upholstery = {}, onChange }) => {
           <div className="flex justify-between">
             <span className="font-medium">Total Upholstery Cost:</span>
             <span>
-              ${(upholstery.items || []).reduce((sum, item) => sum + calculateItemCost(item), 0).toFixed(2)}
+              ${calculateTotalUpholsteryCost().toFixed(2)}
             </span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 // src/pages/pricing/components/LaborPanel.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Pencil, X, AlertCircle } from 'lucide-react';
+import { calculateLabor } from '../../../services/calculationService';
 
 const LaborPanel = ({ labor = {}, onLaborChange, setActivePanel }) => {
   const [editingRate, setEditingRate] = useState(null);
@@ -35,23 +36,34 @@ const LaborPanel = ({ labor = {}, onLaborChange, setActivePanel }) => {
     setLocalLabor(labor);
   }, [labor]);
 
+  // const calculateTotalCost = (laborData) => {
+  //   const baseCost = Object.entries(laborTypes).reduce((sum, [_, key]) => {
+  //     const entry = laborData[key];
+  //     return sum + (Number(entry?.hours || 0) * Number(entry?.rate || 0));
+  //   }, 0);
+
+  //   // Calculate surcharge if settings are available
+  //   const surchargePercentage = settings?.labor?.extraFee || 0;
+  //   const surchargeCost = baseCost * (surchargePercentage / 100);
+
+  //   return {
+  //     baseCost,
+  //     surchargeCost,
+  //     surchargePercentage,
+  //     totalCost: baseCost + surchargeCost
+  //   };
+  // };
   const calculateTotalCost = (laborData) => {
-    const baseCost = Object.entries(laborTypes).reduce((sum, [_, key]) => {
-      const entry = laborData[key];
-      return sum + (Number(entry?.hours || 0) * Number(entry?.rate || 0));
-    }, 0);
-
-    // Calculate surcharge if settings are available
-    const surchargePercentage = settings?.labor?.extraFee || 0;
-    const surchargeCost = baseCost * (surchargePercentage / 100);
-
-    return {
-      baseCost,
-      surchargeCost,
-      surchargePercentage,
-      totalCost: baseCost + surchargeCost
-    };
+  // Use the centralized labor calculation function
+  const laborResult = calculateLabor(laborData, settings);
+  
+  return {
+    baseCost: laborResult.baseCost,
+    surchargeCost: laborResult.surchargeCost,
+    surchargePercentage: settings?.labor?.extraFee || 0,
+    totalCost: laborResult.totalCost
   };
+};
 
   const handleHoursChange = (key, value) => {
     console.log(`Changing ${key} hours to:`, value);
