@@ -122,7 +122,7 @@ const ExpandedDetails = ({ item, isComponent, settings, prices }) => {
                         ${entryCost.toFixed(2)}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {entry.hours} hrs × ${entry.rate}/hr
+                {Number(entry.hours || 0).toFixed(1)} hrs × ${Number(entry.rate || 0).toFixed(2)}/hr
                       </div>
                     </div>
                   </div>

@@ -240,6 +240,17 @@ const FurniturePricingCalculator = () => {
     }
   };
 
+  // Add the lastSyncedSettings property with current settings
+  priceSheetEntry.lastSyncedSettings = {
+    margins: settings?.margins,
+    labor: settings?.labor,
+    cnc: settings?.cnc,
+    overhead: settings?.overhead,
+    materials: settings?.materials,
+  };
+
+
+
   // Make sure components match the expected MongoDB schema format
   if (priceSheetEntry.details && priceSheetEntry.details.components && Array.isArray(priceSheetEntry.details.components)) {
     console.log('Before transformation:', JSON.stringify(priceSheetEntry.details.components));
