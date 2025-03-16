@@ -50,47 +50,141 @@ router.post('/', async (req, res) => {
     const { id, _id, ...entryData } = req.body;
     
     // Process components data if present
-    if (entryData.details && entryData.details.components) {
-      console.log('Components format check:');
-      console.log('- Is array?', Array.isArray(entryData.details.components));
-      console.log('- Length:', entryData.details.components.length);
+    // if (entryData.details && entryData.details.components) {
+    //   console.log('Components format check:');
+    //   console.log('- Is array?', Array.isArray(entryData.details.components));
+    //   console.log('- Length:', entryData.details.components.length);
       
-      if (entryData.details.components.length > 0) {
-        console.log('- First component type:', typeof entryData.details.components[0]);
+    //   if (entryData.details.components.length > 0) {
+    //     console.log('- First component type:', typeof entryData.details.components[0]);
         
-        // If components are strings, try to parse them as JSON
-        if (typeof entryData.details.components[0] === 'string') {
-          console.log('Components are strings, attempting to parse as JSON');
-          try {
-            entryData.details.components = entryData.details.components.map(comp => {
-              try {
-                return JSON.parse(comp);
-              } catch (e) {
-                console.error('Failed to parse component string:', comp);
-                return comp;
-              }
-            });
-          } catch (e) {
-            console.error('Error parsing component strings:', e);
-          }
-        }
+    //     // If components are strings, try to parse them as JSON
+    //     if (typeof entryData.details.components[0] === 'string') {
+    //       console.log('Components are strings, attempting to parse as JSON');
+    //       try {
+    //         entryData.details.components = entryData.details.components.map(comp => {
+    //           try {
+    //             return JSON.parse(comp);
+    //           } catch (e) {
+    //             console.error('Failed to parse component string:', comp);
+    //             return comp;
+    //           }
+    //         });
+    //       } catch (e) {
+    //         console.error('Error parsing component strings:', e);
+    //       }
+    //     }
         
-        // Ensure all component objects have the right structure
-        console.log('Normalizing component objects');
-        entryData.details.components = entryData.details.components.map(component => {
-          if (typeof component === 'object' && component !== null) {
-            return {
-              id: component.id || component._id || String(Date.now()),
-              name: component.name || component.componentName || 'Unnamed',
-              type: component.type || component.componentType || 'unknown',
-              cost: Number(component.cost) || 0,
-              quantity: Number(component.quantity) || 1
-            };
-          }
-          return component;
-        });
-      }
+    //     // Ensure all component objects have the right structure
+    //     console.log('Normalizing component objects');
+    //     entryData.details.components = entryData.details.components.map(component => {
+    //       if (typeof component === 'object' && component !== null) {
+    //         return {
+    //           id: component.id || component._id || String(Date.now()),
+    //           name: component.name || component.componentName || 'Unnamed',
+    //           type: component.type || component.componentType || 'unknown',
+    //           cost: Number(component.cost) || 0,
+    //           quantity: Number(component.quantity) || 1
+    //         };
+    //       }
+    //       return component;
+    //     });
+    //   }
+    // }
+
+    // Process components data if present
+if (entryData.details && entryData.details.components) {
+  console.log('Components format check:');
+  console.log('- Is array?', Array.isArray(entryData.details.components));
+  console.log('- Length:', entryData.details.components.length);
+  
+  if (!Array.isArray(entryData.details.components)) {
+    console.error('Components is not an array, setting to empty array');
+    entryData.details.components = [];
+  } else if (entryData.details.components.length > 0) {
+    console.log('- First component type:', typeof entryData.details.components[0]);
+    
+    // // Ensure all component objects have the right structure
+    // entryData.details.components = entryData.details.components.map(component => {
+    //   // Handle string case (could be stringified JSON)
+    //   if (typeof component === 'string') {
+    //     try {
+    //       component = JSON.parse(component);
+    //     } catch (e) {
+    //       console.error('Failed to parse component string:', component);
+    //       // Create a placeholder component instead of failing
+    //       return {
+    //         id: String(Date.now()),
+    //         name: 'Parsing Error',
+    //         type: 'unknown',
+    //         cost: 0,
+    //         quantity: 1
+    //       };
+    //     }
+    //   }
+      
+    //   // Ensure component is an object
+    //   if (typeof component !== 'object' || component === null) {
+    //     console.error('Invalid component format:', component);
+    //     return {
+    //       id: String(Date.now()),
+    //         name: 'Invalid Format',
+    //         type: 'unknown',
+    //         cost: 0,
+    //         quantity: 1
+    //     };
+    //   }
+      
+    //   // Return properly formatted component
+    //   return {
+    //     id: component.id || component._id || String(Date.now()),
+    //     name: component.name || component.componentName || 'Unnamed',
+    //     type: component.type || component.componentType || 'unknown',
+    //     cost: Number(component.cost) || 0,
+    //     quantity: Number(component.quantity) || 1
+    //   };
+    // });
+    // Ensure all component objects have the right structure
+entryData.details.components = entryData.details.components.map(component => {
+  // Handle string case (could be stringified JSON)
+  if (typeof component === 'string') {
+    try {
+      component = JSON.parse(component);
+    } catch (e) {
+      console.error('Failed to parse component string:', component);
+      return {
+        id: String(Date.now()),
+        name: 'Parsing Error',
+        type: 'unknown',
+        cost: 0,
+        quantity: 1
+      };
     }
+  }
+  
+  // Ensure component is an object
+  if (typeof component !== 'object' || component === null) {
+    console.error('Invalid component format:', component);
+    return {
+      id: String(Date.now()),
+      name: 'Invalid Format',
+      type: 'unknown',
+      cost: 0,
+      quantity: 1
+    };
+  }
+  
+  // Return properly formatted component with explicit type conversions
+  return {
+    id: String(component.id || component._id || Date.now()),
+    name: String(component.name || component.componentName || 'Unnamed'),
+    type: String(component.type || component.componentType || 'unknown'),
+    cost: Number(component.cost || 0),
+    quantity: Number(component.quantity || 1)
+  };
+});
+  }
+}
     
     console.log('Creating new PriceSheet document with data:', JSON.stringify(entryData, null, 2));
     const newEntry = new PriceSheet(entryData);

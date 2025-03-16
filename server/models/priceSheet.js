@@ -71,16 +71,26 @@ const priceSheetSchema = new mongoose.Schema({
       hours: Number,
       cost: Number
     },
+    // components: [{
+    //     id: {
+    //       type: mongoose.Schema.Types.Mixed, // Accept both ObjectId and String
+    //       required: true
+    //     },
+    //     name: String,
+    //     type: String,
+    //     cost: Number,
+    //     quantity: { type: Number, default: 1 }
+    //   }]
     components: [{
-        id: {
-          type: mongoose.Schema.Types.Mixed, // Accept both ObjectId and String
-          required: true
-        },
-        name: String,
-        type: String,
-        cost: Number,
-        quantity: { type: Number, default: 1 }
-      }]
+    id: {
+      type: String,
+      required: true
+    },
+    name: String,
+    type: String,
+    cost: Number,
+    quantity: { type: Number, default: 1 }
+  }]
   }
 }, {
   timestamps: true,
