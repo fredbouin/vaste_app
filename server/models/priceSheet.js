@@ -81,16 +81,10 @@ const priceSheetSchema = new mongoose.Schema({
     //     cost: Number,
     //     quantity: { type: Number, default: 1 }
     //   }]
-    components: [{
-    id: {
-      type: String,
-      required: true
-    },
-    name: String,
-    type: String,
-    cost: Number,
-    quantity: { type: Number, default: 1 }
-  }]
+    components: {
+      type: mongoose.Schema.Types.Mixed, // Accept any format temporarily
+      default: []
+    }
   }
 }, {
   timestamps: true,

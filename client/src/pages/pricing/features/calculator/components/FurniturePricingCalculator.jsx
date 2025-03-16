@@ -252,19 +252,42 @@ const FurniturePricingCalculator = () => {
 
 
   // Make sure components match the expected MongoDB schema format
-  if (priceSheetEntry.details && priceSheetEntry.details.components && Array.isArray(priceSheetEntry.details.components)) {
-    console.log('Before transformation:', JSON.stringify(priceSheetEntry.details.components));
+  // if (priceSheetEntry.details && priceSheetEntry.details.components && Array.isArray(priceSheetEntry.details.components)) {
+  //   console.log('Before transformation:', JSON.stringify(priceSheetEntry.details.components));
     
-    // Format components to match the schema structure
-    priceSheetEntry.details.components = priceSheetEntry.details.components.map(component => ({
-      id: component._id || component.id || String(Date.now()),
-      name: component.name || component.componentName || 'Unnamed',
-      type: component.type || component.componentType || 'unknown',
-      cost: Number(component.cost) || 0,
-      quantity: component.quantity || 1
-    }));
+  //   // Format components to match the schema structure
+  //   priceSheetEntry.details.components = priceSheetEntry.details.components.map(component => ({
+  //     id: component._id || component.id || String(Date.now()),
+  //     name: component.name || component.componentName || 'Unnamed',
+  //     type: component.type || component.componentType || 'unknown',
+  //     cost: Number(component.cost) || 0,
+  //     quantity: component.quantity || 1
+  //   }));
     
-    console.log('After transformation:', JSON.stringify(priceSheetEntry.details.components));
+  //   console.log('After transformation:', JSON.stringify(priceSheetEntry.details.components));
+  // }
+
+  // IMPORTANT FIX: Make sure components match the expected MongoDB schema format
+   if (priceSheetEntry.details && priceSheetEntry.details.components) {
+    // Debug the components before transformation
+    console.log('Components before transformation:', 
+      JSON.stringify(priceSheetEntry.details.components, null, 2));
+    
+    // Format components to match the schema structure exactly
+    priceSheetEntry.details.components = priceSheetEntry.details.components.map(component => {
+      // Create a new object with only the fields defined in the schema
+      return {
+        id: String(component.id || component._id || Date.now()),
+        name: String(component.name || component.componentName || 'Unnamed'),
+        type: String(component.type || component.componentType || 'unknown'),
+        cost: Number(component.cost || 0),
+        quantity: Number(component.quantity || 1)
+      };
+    });
+    
+    // Debug the components after transformation
+    console.log('Components after transformation:', 
+      JSON.stringify(priceSheetEntry.details.components, null, 2));
   }
 
   console.log('Price sheet entry before save:', JSON.stringify(priceSheetEntry, null, 2));
