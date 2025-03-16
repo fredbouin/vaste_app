@@ -1,7 +1,7 @@
 .
+├── README.md
 ├── claude-instructions-advanced.xml
 ├── client
-│   ├── README.md
 │   ├── directory_structure.txt
 │   ├── eslint.config.js
 │   ├── index.html
@@ -110,6 +110,7 @@
 │   │   ├── styles
 │   │   │   └── main.css
 │   │   └── utils
+│   │       ├── calculationUtils.js
 │   │       └── marginUtils.js
 │   ├── tailwind.config.js
 │   └── vite.config.js
@@ -136,4 +137,4 @@
     └── services
         └── calculationService.js
 
-43 directories, 94 files
+43 directories, 95 files
