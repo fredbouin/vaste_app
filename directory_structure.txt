@@ -1,4 +1,5 @@
 .
+├── claude-instructions-advanced.xml
 ├── client
 │   ├── README.md
 │   ├── directory_structure.txt
@@ -15,6 +16,7 @@
 │   │   │   └── priceSheet.js
 │   │   ├── assets
 │   │   │   └── react.svg
+│   │   ├── calculationService.js
 │   │   ├── components
 │   │   │   ├── Footer.jsx
 │   │   │   └── layout
@@ -40,7 +42,6 @@
 │   │   │   │   │   ├── ConfirmationDialog.jsx
 │   │   │   │   │   ├── LaborPanel.jsx
 │   │   │   │   │   ├── MaterialsPanel.jsx
-│   │   │   │   │   ├── NOTSUREIFUSEFULOverheadPanel.jsx
 │   │   │   │   │   ├── PanelHeader.jsx
 │   │   │   │   │   ├── PiecePanel.jsx
 │   │   │   │   │   ├── SubmitConfirmationDialog.jsx
@@ -105,6 +106,7 @@
 │   │   │               │   ├── useModelData.js
 │   │   │               │   └── useProjectManagement.js
 │   │   │               └── utils
+│   │   ├── services
 │   │   ├── styles
 │   │   │   └── main.css
 │   │   └── utils
@@ -130,6 +132,8 @@
     │   └── settings.js
     ├── scripts
     │   └── importModelTimes.js
-    └── server.js
+    ├── server.js
+    └── services
+        └── calculationService.js
 
-41 directories, 92 files
+43 directories, 94 files
