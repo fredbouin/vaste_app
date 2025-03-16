@@ -303,11 +303,12 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// SYNC endpoint to update pricing based on current settings
+// Modified sync endpoint in routes/priceSheet.js to properly include component costs
+
 router.post('/:id/sync', async (req, res) => {
   try {
     console.log('Syncing price sheet entry:', req.params.id);
-    const { currentSettings, isComponent } = req.body;
+    const { currentSettings } = req.body;
     
     if (!currentSettings) {
       return res.status(400).json({ error: 'Current settings not provided' });
@@ -506,7 +507,7 @@ router.post('/:id/sync', async (req, res) => {
     const overheadRate = calculateOverheadRate(currentSettings.overhead);
     const overheadCost = totalHoursWithCNC * overheadRate;
 
-    // Recalculate overall total cost
+    // Calculate materials costs
     const sheetCost = entry.details?.materials?.sheet
       ? entry.details.materials.sheet.reduce((sum, sheet) => sum + ((Number(sheet.quantity) || 1) * (Number(sheet.pricePerSheet) || 0)), 0)
       : 0;
@@ -524,7 +525,26 @@ router.post('/:id/sync', async (req, res) => {
     const finishingCost = entry.details?.materials?.finishing
       ? calculateFinishingCost(entry.details.materials.finishing)
       : 0;
+    
+    // ==============================
+    // Calculate Component Costs - FIXED
+    // ==============================
+    console.log('Processing components for cost calculation');
+    // Ensure components field exists and is an array
+    const components = Array.isArray(entry.details?.components) ? entry.details.components : [];
+    console.log(`Found ${components.length} components:`, JSON.stringify(components, null, 2));
+    
+    const componentsCost = components.reduce((sum, component) => {
+      const cost = Number(component.cost) || 0;
+      const quantity = Number(component.quantity) || 1;
+      const totalCost = cost * quantity;
+      console.log(`Component calculation: ${component.name} - $${cost} × ${quantity} = $${totalCost}`);
+      return sum + totalCost;
+    }, 0);
+    
+    console.log('Total components cost:', componentsCost);
       
+    // Add components cost to the total - FIXED
     const newTotalCost = (baseLaborCost + surchargeCost) + 
       totalWoodCost + 
       sheetCost + 
@@ -532,7 +552,8 @@ router.post('/:id/sync', async (req, res) => {
       hardwareCost + 
       finishingCost + 
       cncCost + 
-      overheadCost;
+      overheadCost +
+      componentsCost;  // FIXED: Added component costs to the total
 
     console.log('New total cost calculation:');
     console.log(`Labor: ${baseLaborCost} + ${surchargeCost} = ${baseLaborCost + surchargeCost}`);
@@ -543,6 +564,7 @@ router.post('/:id/sync', async (req, res) => {
     console.log(`Finishing: ${finishingCost}`);
     console.log(`CNC: ${cncCost}`);
     console.log(`Overhead: ${overheadCost}`);
+    console.log(`Components: ${componentsCost}`); // FIXED: Added log entry
     console.log(`Total: ${newTotalCost}`);
     
     // ==============================
@@ -569,6 +591,7 @@ router.post('/:id/sync', async (req, res) => {
           wasteCost: woodWasteCost,
           totalCost: totalWoodCost
         },
+        // No change to components - we just need to include their cost in the total
         lastSyncedSettings: {
           margins: currentSettings.margins,
           labor: currentSettings.labor,
