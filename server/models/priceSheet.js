@@ -9,6 +9,7 @@ const priceSheetSchema = new mongoose.Schema({
   pieceNumber: String,
   variation: String,
   cost: Number,
+  manualPrice: { type: Number, default: null }, // New field for manual price
   details: {
     labor: {
       breakdown: [{
