@@ -7,6 +7,8 @@ export const useProjectManagement = (modelTimes) => {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState('');
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+
   // Add this effect to recalculate all projects when modelTimes changes
   useEffect(() => {
     const recalculateProjects = async () => {
@@ -33,8 +35,8 @@ export const useProjectManagement = (modelTimes) => {
         });
 
         // Update all projects in the database
-        await Promise.all(updatedProjects.map(project => 
-          axios.put(`http://localhost:3001/api/projects/${project._id}`, project)
+        await Promise.all(updatedProjects.map(project =>
+          axios.put(`${API_BASE_URL}/api/projects/${project._id}`, project)
         ));
 
         console.log('Projects recalculated with new times:', updatedProjects);
@@ -52,7 +54,7 @@ export const useProjectManagement = (modelTimes) => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/projects');
+        const response = await axios.get(`${API_BASE_URL}/api/projects`);
         setProjects(response.data);
       } catch (err) {
         setError('Failed to fetch projects.');
@@ -82,7 +84,7 @@ export const useProjectManagement = (modelTimes) => {
           devisNumbers: formData.devisNumbers
         };
 
-        const response = await axios.post('http://localhost:3001/api/projects', projectWithDevis);
+        const response = await axios.post(`${API_BASE_URL}/api/projects`, projectWithDevis);
         setProjects(prev => [...prev, response.data]);
       } catch (err) {
         setError('Failed to save project to database.');
@@ -91,84 +93,11 @@ export const useProjectManagement = (modelTimes) => {
     }
   };
 
-  // const handleUpdateProject = async (projectIndex, updatedProject, updateType = 'position') => {
-  //   try {
-  //     if (updateType === 'assignment') {
-  //       const recalculatedCurrent = calculateTimeline(
-  //         updatedProject.modelNumber,
-  //         updatedProject.quantity,
-  //         projects.slice(0, projectIndex),
-  //         updatedProject.assignments,
-  //         modelTimes
-  //       );
-        
-  //       updatedProject = {
-  //         ...recalculatedCurrent,
-  //         _id: updatedProject._id,
-  //         assignments: updatedProject.assignments,
-  //         devisNumbers: updatedProject.devisNumbers
-  //       };
-  //     }
-
-  //     await axios.put(`http://localhost:3001/api/projects/${updatedProject._id}`, updatedProject);
-      
-  //     const updatedProjects = [...projects];
-  //     updatedProjects[projectIndex] = updatedProject;
-      
-  //     if (updateType === 'assignment') {
-  //       for (let i = projectIndex + 1; i < updatedProjects.length; i++) {
-  //         const recalculatedProject = calculateTimeline(
-  //           updatedProjects[i].modelNumber,
-  //           updatedProjects[i].quantity,
-  //           updatedProjects.slice(0, i),
-  //           updatedProjects[i].assignments,
-  //           modelTimes
-  //         );
-          
-  //         if (recalculatedProject) {
-  //           const updated = {
-  //             ...recalculatedProject,
-  //             _id: updatedProjects[i]._id,
-  //             assignments: updatedProjects[i].assignments,
-  //             devisNumbers: updatedProjects[i].devisNumbers
-  //           };
-  //           await axios.put(`http://localhost:3001/api/projects/${updated._id}`, updated);
-  //           updatedProjects[i] = updated;
-  //         }
-  //       }
-  //     }
-      
-  //     setProjects(updatedProjects);
-  //   } catch (err) {
-  //     setError('Failed to update project.');
-  //     console.error('Error updating project:', err);
-  //   }
-  // };
-
-  // In useProjectManagement.js, update the handleUpdateProject function:
-
 const handleUpdateProject = async (projectIndex, updatedProject, updateType = 'position') => {
   try {
     let recalculatedProject;
     
-    if (updateType === 'quantity') {
-      // Recalculate the current project with new quantity
-      recalculatedProject = calculateTimeline(
-        updatedProject.modelNumber,
-        updatedProject.quantity,
-        projects.slice(0, projectIndex),
-        updatedProject.assignments,
-        modelTimes
-      );
-      
-      // Preserve the project ID and other metadata
-      recalculatedProject = {
-        ...recalculatedProject,
-        _id: updatedProject._id,
-        assignments: updatedProject.assignments,
-        devisNumbers: updatedProject.devisNumbers
-      };
-    } else if (updateType === 'assignment') {
+    if (updateType === 'quantity' || updateType === 'assignment') {
       recalculatedProject = calculateTimeline(
         updatedProject.modelNumber,
         updatedProject.quantity,
@@ -187,12 +116,11 @@ const handleUpdateProject = async (projectIndex, updatedProject, updateType = 'p
       recalculatedProject = updatedProject;
     }
 
-    await axios.put(`http://localhost:3001/api/projects/${recalculatedProject._id}`, recalculatedProject);
+    await axios.put(`${API_BASE_URL}/api/projects/${recalculatedProject._id}`, recalculatedProject);
     
     const updatedProjects = [...projects];
     updatedProjects[projectIndex] = recalculatedProject;
     
-    // If quantity or assignment changed, recalculate subsequent projects
     if (updateType === 'quantity' || updateType === 'assignment') {
       for (let i = projectIndex + 1; i < updatedProjects.length; i++) {
         const subsequentProject = calculateTimeline(
@@ -210,7 +138,7 @@ const handleUpdateProject = async (projectIndex, updatedProject, updateType = 'p
             assignments: updatedProjects[i].assignments,
             devisNumbers: updatedProjects[i].devisNumbers
           };
-          await axios.put(`http://localhost:3001/api/projects/${updated._id}`, updated);
+          await axios.put(`${API_BASE_URL}/api/projects/${updated._id}`, updated);
           updatedProjects[i] = updated;
         }
       }
@@ -226,7 +154,7 @@ const handleUpdateProject = async (projectIndex, updatedProject, updateType = 'p
   const handleDeleteProject = async (projectIndex) => {
     try {
       const projectToDelete = projects[projectIndex];
-      await axios.delete(`http://localhost:3001/api/projects/${projectToDelete._id}`);
+      await axios.delete(`${API_BASE_URL}/api/projects/${projectToDelete._id}`);
       
       const updatedProjects = projects.filter((_, index) => index !== projectIndex);
       
@@ -248,7 +176,7 @@ const handleUpdateProject = async (projectIndex, updatedProject, updateType = 'p
             assignments: project.assignments,
             devisNumbers: project.devisNumbers
           };
-          await axios.put(`http://localhost:3001/api/projects/${updated._id}`, updated);
+          await axios.put(`${API_BASE_URL}/api/projects/${updated._id}`, updated);
           return updated;
         }
         return project;
@@ -264,7 +192,7 @@ const handleUpdateProject = async (projectIndex, updatedProject, updateType = 'p
   const handleClearProjects = async () => {
     try {
       await Promise.all(projects.map(project => 
-        axios.delete(`http://localhost:3001/api/projects/${project._id}`)
+        axios.delete(`${API_BASE_URL}/api/projects/${project._id}`)
       ));
       setProjects([]);
     } catch (err) {

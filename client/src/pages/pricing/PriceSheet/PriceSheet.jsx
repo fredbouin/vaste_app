@@ -1,6 +1,5 @@
 //NEWCODE082625
 
-
 // src/pages/pricing/PriceSheet/PriceSheet.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -19,6 +18,8 @@ const PriceSheet = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,7 +33,7 @@ const PriceSheet = () => {
         }
 
         console.log('Fetching price sheet data');
-        const response = await axios.get('http://localhost:3001/api/price-sheet');
+        const response = await axios.get(`${API_BASE_URL}/api/price-sheet`);
         console.log(`Received ${response.data.length} items from server`);
         
         setPriceData({
@@ -49,7 +50,7 @@ const PriceSheet = () => {
     };
 
     fetchData();
-  }, []);
+  }, [API_BASE_URL]);
 
   const handleRemoveItem = async (id, isComponent, isCustom) => {
     if (!window.confirm('Are you sure you want to remove this item?')) {
@@ -58,7 +59,7 @@ const PriceSheet = () => {
 
     try {
       console.log(`Deleting item ${id}`);
-      await axios.delete(`http://localhost:3001/api/price-sheet/${id}`);
+      await axios.delete(`${API_BASE_URL}/api/price-sheet/${id}`);
       
       const key = isComponent ? 'components' : (isCustom ? 'custom' : 'pieces');
       setPriceData(prev => ({

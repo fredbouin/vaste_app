@@ -16,7 +16,7 @@ export const useModelData = () => {
         // Log the request being made
         console.log('Making request to /api/model-templates with cache-busting headers');
         
-        const response = await axios.get('http://localhost:3001/api/model-templates', {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/model-templates`, {
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',

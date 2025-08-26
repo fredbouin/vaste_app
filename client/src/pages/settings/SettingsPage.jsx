@@ -66,7 +66,7 @@ const SettingsPage = () => {
   const saveSettingsToDB = async () => {
     console.log("Attempting to save settings:", settings);
     try {
-      const response = await fetch('http://localhost:3001/api/settings', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
