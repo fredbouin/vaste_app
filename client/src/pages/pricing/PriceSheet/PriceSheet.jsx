@@ -1,3 +1,6 @@
+//NEWCODE082625
+
+
 // src/pages/pricing/PriceSheet/PriceSheet.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -9,7 +12,8 @@ const PriceSheet = () => {
   const [activeTab, setActiveTab] = useState('pieces');
   const [priceData, setPriceData] = useState({ 
     pieces: [],
-    components: [] 
+    components: [],
+    custom: [] // ADD THIS LINE
   });
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,7 +24,6 @@ const PriceSheet = () => {
       try {
         setLoading(true);
         
-        // Load settings first
         const savedSettings = localStorage.getItem('calculatorSettings');
         if (savedSettings) {
           const parsedSettings = JSON.parse(savedSettings);
@@ -28,14 +31,14 @@ const PriceSheet = () => {
           console.log('Settings loaded from localStorage');
         }
 
-        // Then fetch price sheet data
         console.log('Fetching price sheet data');
         const response = await axios.get('http://localhost:3001/api/price-sheet');
         console.log(`Received ${response.data.length} items from server`);
         
         setPriceData({
-          pieces: response.data.filter(item => !item.isComponent),
-          components: response.data.filter(item => item.isComponent)
+          pieces: response.data.filter(item => !item.isComponent && !item.isCustom), // UPDATE THIS LINE
+          components: response.data.filter(item => item.isComponent),
+          custom: response.data.filter(item => item.isCustom) // ADD THIS LINE
         });
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -48,7 +51,7 @@ const PriceSheet = () => {
     fetchData();
   }, []);
 
-  const handleRemoveItem = async (id, isComponent) => {
+  const handleRemoveItem = async (id, isComponent, isCustom) => { // UPDATE THIS LINE
     if (!window.confirm('Are you sure you want to remove this item?')) {
       return;
     }
@@ -57,7 +60,7 @@ const PriceSheet = () => {
       console.log(`Deleting item ${id}`);
       await axios.delete(`http://localhost:3001/api/price-sheet/${id}`);
       
-      const key = isComponent ? 'components' : 'pieces';
+      const key = isComponent ? 'components' : (isCustom ? 'custom' : 'pieces'); // UPDATE THIS LINE
       setPriceData(prev => ({
         ...prev,
         [key]: prev[key].filter(item => item._id !== id)
@@ -71,24 +74,21 @@ const PriceSheet = () => {
 
   const handleSync = (updatedItem) => {
     console.log('Sync complete, updating item in state:', updatedItem._id);
-    const key = updatedItem.isComponent ? 'components' : 'pieces';
+    const key = updatedItem.isComponent ? 'components' : (updatedItem.isCustom ? 'custom' : 'pieces'); // UPDATE THIS LINE
     
     setPriceData(prev => {
-      // Find the item being updated
       const existingItem = prev[key].find(item => item._id === updatedItem._id);
       if (!existingItem) {
         console.warn(`Item with ID ${updatedItem._id} not found in state`);
         return prev;
       }
       
-      // Create the updated array
       const updatedItems = prev[key].map(item => 
         item._id === updatedItem._id ? updatedItem : item
       );
       
       console.log(`Updated ${key} array, now has ${updatedItems.length} items`);
       
-      // Return the new state
       return {
         ...prev,
         [key]: updatedItems
@@ -98,7 +98,6 @@ const PriceSheet = () => {
 
   const handleEdit = (item) => {
     console.log('Editing item:', item._id);
-    // Prepare labor data
     const laborData = {
       stockProduction: { hours: 0, rate: 0 },
       cncOperator: { hours: 0, rate: 0 },
@@ -155,6 +154,7 @@ const PriceSheet = () => {
 
     const calculatorData = {
       isComponent: Boolean(item.isComponent),
+      isCustom: Boolean(item.isCustom), // ADD THIS LINE
       editingId: item._id,
       componentName: item.componentName || '',
       componentType: item.componentType || '',
@@ -230,9 +230,19 @@ const PriceSheet = () => {
               onSync={handleSync}
               calculatePrice={calculatePrice}
             />
-          ) : (
+          ) : activeTab === 'components' ? (
             <ComponentsList
               components={priceData.components}
+              settings={settings}
+              onEdit={handleEdit}
+              onRemove={handleRemoveItem}
+              onDuplicate={handleDuplicate}
+              onSync={handleSync}
+              calculatePrice={calculatePrice}
+            />
+          ) : ( // ADD THIS SECTION
+            <PiecesList
+              pieces={priceData.custom}
               settings={settings}
               onEdit={handleEdit}
               onRemove={handleRemoveItem}
@@ -248,6 +258,7 @@ const PriceSheet = () => {
 };
 
 export default PriceSheet;
+
 
 // // src/pages/pricing/PriceSheet/PriceSheet.jsx
 // import React, { useState, useEffect } from 'react';
@@ -267,29 +278,36 @@ export default PriceSheet;
 //   const [error, setError] = useState(null);
 
 //   useEffect(() => {
-//     const fetchPriceSheetData = async () => {
+//     const fetchData = async () => {
 //       try {
 //         setLoading(true);
+        
+//         // Load settings first
+//         const savedSettings = localStorage.getItem('calculatorSettings');
+//         if (savedSettings) {
+//           const parsedSettings = JSON.parse(savedSettings);
+//           setSettings(parsedSettings);
+//           console.log('Settings loaded from localStorage');
+//         }
+
+//         // Then fetch price sheet data
+//         console.log('Fetching price sheet data');
 //         const response = await axios.get('http://localhost:3001/api/price-sheet');
+//         console.log(`Received ${response.data.length} items from server`);
+        
 //         setPriceData({
 //           pieces: response.data.filter(item => !item.isComponent),
 //           components: response.data.filter(item => item.isComponent)
 //         });
 //       } catch (err) {
-//         console.error('Error fetching price sheet data:', err);
-//         setError('Failed to load price sheet data');
+//         console.error('Error fetching data:', err);
+//         setError('Failed to load price sheet data: ' + (err.message || 'Unknown error'));
 //       } finally {
 //         setLoading(false);
 //       }
 //     };
 
-//     // Load settings from localStorage
-//     const savedSettings = localStorage.getItem('calculatorSettings');
-//     if (savedSettings) {
-//       setSettings(JSON.parse(savedSettings));
-//     }
-
-//     fetchPriceSheetData();
+//     fetchData();
 //   }, []);
 
 //   const handleRemoveItem = async (id, isComponent) => {
@@ -298,6 +316,7 @@ export default PriceSheet;
 //     }
 
 //     try {
+//       console.log(`Deleting item ${id}`);
 //       await axios.delete(`http://localhost:3001/api/price-sheet/${id}`);
       
 //       const key = isComponent ? 'components' : 'pieces';
@@ -305,6 +324,7 @@ export default PriceSheet;
 //         ...prev,
 //         [key]: prev[key].filter(item => item._id !== id)
 //       }));
+//       console.log(`Item ${id} deleted successfully`);
 //     } catch (err) {
 //       console.error('Error removing item:', err);
 //       alert('Failed to remove item. Please try again.');
@@ -312,17 +332,35 @@ export default PriceSheet;
 //   };
 
 //   const handleSync = (updatedItem) => {
+//     console.log('Sync complete, updating item in state:', updatedItem._id);
 //     const key = updatedItem.isComponent ? 'components' : 'pieces';
-//     setPriceData(prev => ({
-//       ...prev,
-//       [key]: prev[key].map(item => 
+    
+//     setPriceData(prev => {
+//       // Find the item being updated
+//       const existingItem = prev[key].find(item => item._id === updatedItem._id);
+//       if (!existingItem) {
+//         console.warn(`Item with ID ${updatedItem._id} not found in state`);
+//         return prev;
+//       }
+      
+//       // Create the updated array
+//       const updatedItems = prev[key].map(item => 
 //         item._id === updatedItem._id ? updatedItem : item
-//       )
-//     }));
+//       );
+      
+//       console.log(`Updated ${key} array, now has ${updatedItems.length} items`);
+      
+//       // Return the new state
+//       return {
+//         ...prev,
+//         [key]: updatedItems
+//       };
+//     });
 //   };
 
 //   const handleEdit = (item) => {
-//     // Existing edit logic...
+//     console.log('Editing item:', item._id);
+//     // Prepare labor data
 //     const laborData = {
 //       stockProduction: { hours: 0, rate: 0 },
 //       cncOperator: { hours: 0, rate: 0 },
@@ -386,7 +424,7 @@ export default PriceSheet;
 //       pieceNumber: item.pieceNumber || '',
 //       variation: item.variation || '',
 //       selectedComponents: Array.isArray(item.details?.components) 
-//         ? item.details.components.map(comp => comp.id)
+//         ? item.details.components.map(comp => comp.id || comp._id)
 //         : [],
 //       labor: laborData,
 //       materials: materialsData,
@@ -403,7 +441,7 @@ export default PriceSheet;
 //   const handleDuplicate = (item) => {
 //     const duplicatedItem = {
 //       ...item,
-//       details: JSON.parse(JSON.stringify(item.details)),
+//       details: JSON.parse(JSON.stringify(item.details || {})),
 //       _id: undefined,
 //       id: Date.now(),
 //       componentName: item.componentName ? `Copy of ${item.componentName}` : item.componentName,
@@ -472,4 +510,3 @@ export default PriceSheet;
 // };
 
 // export default PriceSheet;
-
