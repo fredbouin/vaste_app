@@ -13,7 +13,7 @@ const PriceSheet = () => {
   const [priceData, setPriceData] = useState({ 
     pieces: [],
     components: [],
-    custom: [] // ADD THIS LINE
+    custom: []
   });
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,9 +36,9 @@ const PriceSheet = () => {
         console.log(`Received ${response.data.length} items from server`);
         
         setPriceData({
-          pieces: response.data.filter(item => !item.isComponent && !item.isCustom), // UPDATE THIS LINE
+          pieces: response.data.filter(item => !item.isComponent && !item.isCustom),
           components: response.data.filter(item => item.isComponent),
-          custom: response.data.filter(item => item.isCustom) // ADD THIS LINE
+          custom: response.data.filter(item => item.isCustom)
         });
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -51,7 +51,7 @@ const PriceSheet = () => {
     fetchData();
   }, []);
 
-  const handleRemoveItem = async (id, isComponent, isCustom) => { // UPDATE THIS LINE
+  const handleRemoveItem = async (id, isComponent, isCustom) => {
     if (!window.confirm('Are you sure you want to remove this item?')) {
       return;
     }
@@ -60,7 +60,7 @@ const PriceSheet = () => {
       console.log(`Deleting item ${id}`);
       await axios.delete(`http://localhost:3001/api/price-sheet/${id}`);
       
-      const key = isComponent ? 'components' : (isCustom ? 'custom' : 'pieces'); // UPDATE THIS LINE
+      const key = isComponent ? 'components' : (isCustom ? 'custom' : 'pieces');
       setPriceData(prev => ({
         ...prev,
         [key]: prev[key].filter(item => item._id !== id)
@@ -74,7 +74,7 @@ const PriceSheet = () => {
 
   const handleSync = (updatedItem) => {
     console.log('Sync complete, updating item in state:', updatedItem._id);
-    const key = updatedItem.isComponent ? 'components' : (updatedItem.isCustom ? 'custom' : 'pieces'); // UPDATE THIS LINE
+    const key = updatedItem.isComponent ? 'components' : (updatedItem.isCustom ? 'custom' : 'pieces');
     
     setPriceData(prev => {
       const existingItem = prev[key].find(item => item._id === updatedItem._id);
@@ -154,7 +154,7 @@ const PriceSheet = () => {
 
     const calculatorData = {
       isComponent: Boolean(item.isComponent),
-      isCustom: Boolean(item.isCustom), // ADD THIS LINE
+      isCustom: Boolean(item.isCustom),
       editingId: item._id,
       componentName: item.componentName || '',
       componentType: item.componentType || '',
@@ -240,12 +240,12 @@ const PriceSheet = () => {
               onSync={handleSync}
               calculatePrice={calculatePrice}
             />
-          ) : ( // ADD THIS SECTION
+          ) : (
             <PiecesList
               pieces={priceData.custom}
               settings={settings}
               onEdit={handleEdit}
-              onRemove={handleRemoveItem}
+              onRemove={(id, isComponent, isCustom) => handleRemoveItem(id, isComponent, true)}
               onDuplicate={handleDuplicate}
               onSync={handleSync}
               calculatePrice={calculatePrice}
@@ -258,7 +258,6 @@ const PriceSheet = () => {
 };
 
 export default PriceSheet;
-
 
 // // src/pages/pricing/PriceSheet/PriceSheet.jsx
 // import React, { useState, useEffect } from 'react';

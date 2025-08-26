@@ -1,6 +1,4 @@
 //NEWCODE082625
-
-
 // src/pages/pricing/PriceSheet/components/PiecesList.jsx
 import React, { useState } from 'react';
 import PriceListItem from './PriceListItem';
@@ -8,10 +6,7 @@ import PriceListItem from './PriceListItem';
 const PiecesList = ({ pieces, settings, onEdit, onRemove, onDuplicate, calculatePrice, onSync }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
-  // Filter out any custom projects from the main pieces list
-  const filteredPieces = pieces.filter(piece => !piece.isCustom);
-
-  if (filteredPieces.length === 0) {
+  if (pieces.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>No pieces have been added to the price sheet yet.</p>
@@ -20,7 +15,7 @@ const PiecesList = ({ pieces, settings, onEdit, onRemove, onDuplicate, calculate
     );
   }
 
-  const groupedByCollection = filteredPieces.reduce((acc, item) => {
+  const groupedByCollection = pieces.reduce((acc, item) => {
     const collectionNumber = item.collection;
     if (!acc[collectionNumber]) {
       acc[collectionNumber] = [];
@@ -96,7 +91,6 @@ const PiecesList = ({ pieces, settings, onEdit, onRemove, onDuplicate, calculate
 };
 
 export default PiecesList;
-
 
 // src/pages/pricing/PriceSheet/components/PiecesList.jsx
 // import React, { useState } from 'react';

@@ -1,3 +1,4 @@
+//NEWCODE082625
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Trash2, Pencil, Copy, RefreshCw, DollarSign } from 'lucide-react';
 import ExpandedDetails from './ExpandedDetails';
@@ -222,7 +223,7 @@ const PriceListItem = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onRemove(itemState._id || itemState.id, isComponent);
+                onRemove(itemState._id || itemState.id, isComponent, itemState.isCustom);
               }}
               className="p-1.5 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50"
               title="Delete"
@@ -302,7 +303,6 @@ const PriceListItem = ({
 };
 
 export default PriceListItem;
-
 // import { ChevronDown, ChevronRight, Trash2, Pencil, Copy, RefreshCw } from 'lucide-react';
 // import { useState, useEffect } from 'react';
 // import ExpandedDetails from './ExpandedDetails';

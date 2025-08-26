@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const priceSheetSchema = new mongoose.Schema({
   isComponent: Boolean,
-  isCustom: { type: Boolean, default: false }, // ADD THIS LINE
+  isCustom: { type: Boolean, default: false }, // ADD THIS LINE``
   componentName: String,
   componentType: String,
   collection: String,
