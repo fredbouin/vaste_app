@@ -9,8 +9,8 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
-  // Add this build configuration
+  // Change the build configuration to output to 'dist'
   build: {
-    outDir: '../server/public'
+    outDir: 'dist'
   }
 })
