@@ -3,7 +3,6 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const { google } = require('googleapis');
 const path = require('path');
 
 const app = express();
@@ -26,7 +25,8 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('Could not connect to MongoDB:', err));
 
 // --- SERVE STATIC CLIENT FILES ---
-app.use(express.static(path.join(__dirname, '../client/dist')));
+// UPDATED: Serve files from the 'public' directory within the server folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Import routes
 const projectRoutes = require('./routes/projects');
@@ -41,9 +41,9 @@ app.use('/api/price-sheet', priceSheetRoutes);
 app.use('/api/settings', settingsRoutes);
 
 // --- CATCH-ALL ROUTE FOR CLIENT-SIDE ROUTING ---
-// This should come after all API routes
+// UPDATED: This should come after all API routes and point to the new location
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 
