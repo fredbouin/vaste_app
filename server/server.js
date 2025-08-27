@@ -9,22 +9,36 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors());
+// --- CORRECT CORS CONFIGURATION ---
+const corsOptions = {
+  origin: 'https://vaste-app-client.onrender.com', // Your frontend URL
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// MongoDB connection
+// MongoDB connection with improved logging
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
+  .then(() => console.log('Successfully connected to MongoDB!'))
   .catch(err => console.error('Could not connect to MongoDB:', err));
 
-// Google Sheets API setup
+// --- DYNAMIC GOOGLE SHEETS API SETUP ---
+// Use Render's secret file path if available, otherwise use local path
+const keyFilePath = process.env.RENDER
+  ? '/etc/secrets/google-sheets.json'
+  : path.join(__dirname, 'credentials/google-sheets.json');
+
 const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, 'credentials/google-sheets.json'),
+  keyFile: keyFilePath,
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 });
 
 const sheets = google.sheets({ version: 'v4', auth });
+
+// --- SERVE STATIC CLIENT FILES ---
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
 
 // Function to fetch and process data from Google Sheets
 async function fetchAndTransformData() {
@@ -97,11 +111,18 @@ app.get('/api/model-templates', async (req, res) => {
   }
 });
 
-// Mount routes
+// Mount API routes
 app.use('/api/projects', projectRoutes);
 app.use('/api/model-templates', modelTemplateRoutes);
 app.use('/api/price-sheet', priceSheetRoutes);
 app.use('/api/settings', settingsRoutes);
+
+// --- CATCH-ALL ROUTE FOR CLIENT-SIDE ROUTING ---
+// This should come after all API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
