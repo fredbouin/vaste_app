@@ -131,16 +131,26 @@ const calculateWoodCost = (woodEntries, settings) => {
 /**
  * Calculate finishing materials cost
  * * @param {Object} finishing - Finishing material data
+ * @param {Object} settings - Application settings
  * @returns {Number} Total finishing cost
  */
-const calculateFinishingCost = (finishing) => {
-  if (!finishing?.materialId || !finishing?.surfaceArea || !finishing?.coats || !finishing?.coverage) {
+const calculateFinishingCost = (finishing, settings) => {
+  if (!finishing?.materialId || !finishing?.surfaceArea || !finishing?.coats) {
     return 0;
   }
+
+  const materialSettings = settings?.materials?.finishing?.find(m => m.id === Number(finishing.materialId));
+  if (!materialSettings) return 0;
+
+  const coverage = Number(materialSettings.coverage) || 0;
+  const costPerLiter = (Number(materialSettings.containerCost) || 0) / (Number(materialSettings.containerSize) || 1);
+
+  if (coverage === 0) return 0;
+
   const areaInSqFt = Number(finishing.surfaceArea) / 144;
-  const litersNeeded = (areaInSqFt * Number(finishing.coats)) / Number(finishing.coverage);
-  const litersWithWaste = litersNeeded * 1.1;
-  return litersWithWaste * (Number(finishing.costPerLiter) || 0);
+  const litersNeeded = (areaInSqFt * Number(finishing.coats)) / coverage;
+  const litersWithWaste = litersNeeded * 1.1; // 10% waste factor
+  return litersWithWaste * costPerLiter;
 };
 
 /**
@@ -159,14 +169,21 @@ const calculateOverheadRate = (overhead) => {
 /**
  * Calculate hardware costs from hardware entries
  * * @param {Array} hardware - Hardware entries
+ * @param {Object} settings - Application settings
  * @returns {Number} Total hardware cost
  */
-const calculateHardwareCost = (hardware) => {
+const calculateHardwareCost = (hardware, settings) => {
   if (!hardware || !Array.isArray(hardware)) return 0;
   
   return hardware.reduce((sum, item) => {
     const quantity = Number(item.quantity) || 0;
-    const pricePerUnit = Number(item.pricePerUnit || item.costPerUnit) || 0;
+    
+    // Find the latest price from settings
+    const hardwareSettings = settings?.materials?.hardware?.find(h => h.id === Number(item.hardwareId));
+    const pricePerUnit = hardwareSettings 
+      ? (Number(hardwareSettings.pricePerPack) / Number(hardwareSettings.unitsPerPack)) 
+      : (Number(item.pricePerUnit) || 0);
+
     return sum + (quantity * pricePerUnit);
   }, 0);
 };
@@ -174,21 +191,23 @@ const calculateHardwareCost = (hardware) => {
 /**
  * Calculate upholstery costs
  * * @param {Object} upholstery - Upholstery data object
+ * @param {Object} settings - Application settings
  * @returns {Number} Total upholstery cost
  */
-const calculateUpholsteryCost = (upholstery) => {
+const calculateUpholsteryCost = (upholstery, settings) => {
   if (!upholstery || !upholstery.items || !Array.isArray(upholstery.items)) {
     return 0;
   }
   
   return upholstery.items.reduce((sum, item) => {
-    // If item has a pre-calculated cost, use that
-    if (item.cost !== undefined) {
-      return sum + Number(item.cost);
-    }
-    // Otherwise calculate from square feet and cost per sq ft
     const squareFeet = Number(item.squareFeet) || 0;
-    const costPerSqFt = Number(item.costPerSqFt) || 0;
+
+    // Find the latest price from settings
+    const materialSettings = settings?.materials?.upholsteryMaterials?.find(m => m.id === Number(item.materialId));
+    const costPerSqFt = materialSettings 
+      ? (Number(materialSettings.costPerSqFt) || 0)
+      : (Number(item.costPerSqFt) || 0);
+
     return sum + (squareFeet * costPerSqFt);
   }, 0);
 };
@@ -196,14 +215,21 @@ const calculateUpholsteryCost = (upholstery) => {
 /**
  * Calculate sheet material costs
  * * @param {Array} sheets - Sheet material entries
+ * @param {Object} settings - Application settings
  * @returns {Number} Total sheet cost
  */
-const calculateSheetCost = (sheets) => {
+const calculateSheetCost = (sheets, settings) => {
   if (!sheets || !Array.isArray(sheets)) return 0;
   
   return sheets.reduce((sum, sheet) => {
     const quantity = Number(sheet.quantity || 1);
-    const pricePerSheet = Number(sheet.pricePerSheet) || 0;
+
+    // Find the latest price from settings
+    const sheetSettings = settings?.materials?.sheet?.find(s => s.id === Number(sheet.sheetId));
+    const pricePerSheet = sheetSettings 
+      ? (Number(sheetSettings.pricePerSheet) || 0)
+      : (Number(sheet.pricePerSheet) || 0);
+
     return sum + (quantity * pricePerSheet);
   }, 0);
 };
