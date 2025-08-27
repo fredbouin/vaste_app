@@ -50,141 +50,54 @@ router.post('/', async (req, res) => {
     const { id, _id, ...entryData } = req.body;
     
     // Process components data if present
-    // if (entryData.details && entryData.details.components) {
-    //   console.log('Components format check:');
-    //   console.log('- Is array?', Array.isArray(entryData.details.components));
-    //   console.log('- Length:', entryData.details.components.length);
+    if (entryData.details && entryData.details.components) {
+      console.log('Components format check:');
+      console.log('- Is array?', Array.isArray(entryData.details.components));
+      console.log('- Length:', entryData.details.components.length);
       
-    //   if (entryData.details.components.length > 0) {
-    //     console.log('- First component type:', typeof entryData.details.components[0]);
+      if (!Array.isArray(entryData.details.components)) {
+        console.error('Components is not an array, setting to empty array');
+        entryData.details.components = [];
+      } else if (entryData.details.components.length > 0) {
+        console.log('- First component type:', typeof entryData.details.components[0]);
         
-    //     // If components are strings, try to parse them as JSON
-    //     if (typeof entryData.details.components[0] === 'string') {
-    //       console.log('Components are strings, attempting to parse as JSON');
-    //       try {
-    //         entryData.details.components = entryData.details.components.map(comp => {
-    //           try {
-    //             return JSON.parse(comp);
-    //           } catch (e) {
-    //             console.error('Failed to parse component string:', comp);
-    //             return comp;
-    //           }
-    //         });
-    //       } catch (e) {
-    //         console.error('Error parsing component strings:', e);
-    //       }
-    //     }
-        
-    //     // Ensure all component objects have the right structure
-    //     console.log('Normalizing component objects');
-    //     entryData.details.components = entryData.details.components.map(component => {
-    //       if (typeof component === 'object' && component !== null) {
-    //         return {
-    //           id: component.id || component._id || String(Date.now()),
-    //           name: component.name || component.componentName || 'Unnamed',
-    //           type: component.type || component.componentType || 'unknown',
-    //           cost: Number(component.cost) || 0,
-    //           quantity: Number(component.quantity) || 1
-    //         };
-    //       }
-    //       return component;
-    //     });
-    //   }
-    // }
-
-    // Process components data if present
-if (entryData.details && entryData.details.components) {
-  console.log('Components format check:');
-  console.log('- Is array?', Array.isArray(entryData.details.components));
-  console.log('- Length:', entryData.details.components.length);
-  
-  if (!Array.isArray(entryData.details.components)) {
-    console.error('Components is not an array, setting to empty array');
-    entryData.details.components = [];
-  } else if (entryData.details.components.length > 0) {
-    console.log('- First component type:', typeof entryData.details.components[0]);
-    
-    // // Ensure all component objects have the right structure
-    // entryData.details.components = entryData.details.components.map(component => {
-    //   // Handle string case (could be stringified JSON)
-    //   if (typeof component === 'string') {
-    //     try {
-    //       component = JSON.parse(component);
-    //     } catch (e) {
-    //       console.error('Failed to parse component string:', component);
-    //       // Create a placeholder component instead of failing
-    //       return {
-    //         id: String(Date.now()),
-    //         name: 'Parsing Error',
-    //         type: 'unknown',
-    //         cost: 0,
-    //         quantity: 1
-    //       };
-    //     }
-    //   }
-      
-    //   // Ensure component is an object
-    //   if (typeof component !== 'object' || component === null) {
-    //     console.error('Invalid component format:', component);
-    //     return {
-    //       id: String(Date.now()),
-    //         name: 'Invalid Format',
-    //         type: 'unknown',
-    //         cost: 0,
-    //         quantity: 1
-    //     };
-    //   }
-      
-    //   // Return properly formatted component
-    //   return {
-    //     id: component.id || component._id || String(Date.now()),
-    //     name: component.name || component.componentName || 'Unnamed',
-    //     type: component.type || component.componentType || 'unknown',
-    //     cost: Number(component.cost) || 0,
-    //     quantity: Number(component.quantity) || 1
-    //   };
-    // });
-    // Ensure all component objects have the right structure
-entryData.details.components = entryData.details.components.map(component => {
-  // Handle string case (could be stringified JSON)
-  if (typeof component === 'string') {
-    try {
-      component = JSON.parse(component);
-    } catch (e) {
-      console.error('Failed to parse component string:', component);
-      return {
-        id: String(Date.now()),
-        name: 'Parsing Error',
-        type: 'unknown',
-        cost: 0,
-        quantity: 1
-      };
+        entryData.details.components = entryData.details.components.map(component => {
+          if (typeof component === 'string') {
+            try {
+              component = JSON.parse(component);
+            } catch (e) {
+              console.error('Failed to parse component string:', component);
+              return {
+                id: String(Date.now()),
+                name: 'Parsing Error',
+                type: 'unknown',
+                cost: 0,
+                quantity: 1
+              };
+            }
+          }
+          
+          if (typeof component !== 'object' || component === null) {
+            console.error('Invalid component format:', component);
+            return {
+              id: String(Date.now()),
+              name: 'Invalid Format',
+              type: 'unknown',
+              cost: 0,
+              quantity: 1
+            };
+          }
+          
+          return {
+            id: String(component.id || component._id || Date.now()),
+            name: String(component.name || component.componentName || 'Unnamed'),
+            type: String(component.type || component.componentType || 'unknown'),
+            cost: Number(component.cost || 0),
+            quantity: Number(component.quantity || 1)
+          };
+        });
+      }
     }
-  }
-  
-  // Ensure component is an object
-  if (typeof component !== 'object' || component === null) {
-    console.error('Invalid component format:', component);
-    return {
-      id: String(Date.now()),
-      name: 'Invalid Format',
-      type: 'unknown',
-      cost: 0,
-      quantity: 1
-    };
-  }
-  
-  // Return properly formatted component with explicit type conversions
-  return {
-    id: String(component.id || component._id || Date.now()),
-    name: String(component.name || component.componentName || 'Unnamed'),
-    type: String(component.type || component.componentType || 'unknown'),
-    cost: Number(component.cost || 0),
-    quantity: Number(component.quantity || 1)
-  };
-});
-  }
-}
     
     console.log('Creating new PriceSheet document with data:', JSON.stringify(entryData, null, 2));
     const newEntry = new PriceSheet(entryData);
@@ -219,14 +132,11 @@ router.put('/:id', async (req, res) => {
     console.log('Updating price sheet entry:', req.params.id);
     console.log('Update data:', JSON.stringify(req.body, null, 2));
     
-    // Remove client-generated id and _id from update data
     const { id, _id, ...updateData } = req.body;
     
-    // Process components data if present
     if (updateData.details && updateData.details.components) {
       console.log('Processing components for update');
       
-      // If components are strings, try to parse them as JSON
       if (updateData.details.components.length > 0 && 
           typeof updateData.details.components[0] === 'string') {
         try {
@@ -242,7 +152,6 @@ router.put('/:id', async (req, res) => {
         }
       }
       
-      // Ensure all component objects have the right structure
       updateData.details.components = updateData.details.components.map(component => {
         if (typeof component === 'object' && component !== null) {
           return {
@@ -303,8 +212,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Modified sync endpoint in routes/priceSheet.js to properly include component costs
-
+// *** MODIFIED AND CORRECTED ***
 router.post('/:id/sync', async (req, res) => {
   try {
     console.log('Syncing price sheet entry:', req.params.id);
@@ -354,14 +262,10 @@ router.post('/:id/sync', async (req, res) => {
         };
       });
       
-    // Calculate base labor cost
     const baseLaborCost = newLaborBreakdown.reduce((sum, item) => sum + item.cost, 0);
-    
-    // Calculate labor surcharge
     const surchargePercent = Number(currentSettings.labor.extraFee) || 0;
     const surchargeCost = baseLaborCost * (surchargePercent / 100);
     
-    // Add surcharge to breakdown if applicable
     if (surchargePercent > 0) {
       newLaborBreakdown.push({
         type: 'Labor Surcharge',
@@ -375,198 +279,71 @@ router.post('/:id/sync', async (req, res) => {
     // ==============================
     // Process Wood Materials
     // ==============================
-    // Convert Mongoose documents to plain objects
-    const woodEntries = [];
-    if (entry.details?.materials?.wood && entry.details.materials.wood.length > 0) {
-      for (let i = 0; i < entry.details.materials.wood.length; i++) {
-        const woodDoc = entry.details.materials.wood[i];
-        // Extract actual data - could be in _doc, toObject(), or directly in the object
-        let woodData;
-        if (woodDoc._doc) {
-          woodData = woodDoc._doc;
-        } else if (typeof woodDoc.toObject === 'function') {
-          woodData = woodDoc.toObject();
-        } else {
-          woodData = woodDoc;
-        }
-        
-        // Log what we're working with for debugging
-        console.log(`Processing wood entry ${i}:`, JSON.stringify(woodData, null, 2));
-        
-        woodEntries.push({
-          species: woodData.species,
-          thickness: woodData.thickness,
-          boardFeet: Number(woodData.boardFeet) || 0,
-          cost: Number(woodData.cost) || 0,
-          _id: woodData._id
-        });
-      }
-    }
-    
-    console.log('Extracted wood entries:', JSON.stringify(woodEntries, null, 2));
-    
-    // Create updated wood entries with proper costs
-    const updatedWoodEntries = woodEntries.map(wood => {
-      // Skip entries without species or thickness info
-      if (!wood.species || !wood.thickness) {
-        console.log('Preserving wood entry without species/thickness:', wood);
-        return wood;
-      }
-      
-      const speciesSettings = currentSettings.materials?.wood?.[wood.species];
-      if (!speciesSettings) {
-        console.log(`Species ${wood.species} not found in settings, preserving original cost:`, wood.cost);
-        return wood;
-      }
-      
-      const thicknessSettings = speciesSettings[wood.thickness];
-      if (!thicknessSettings) {
-        console.log(`Thickness ${wood.thickness} not found for species ${wood.species}, preserving original cost:`, wood.cost);
-        return wood;
-      }
-      
-      // We have found matching settings, get the cost
-      const newCost = Number(thicknessSettings.cost);
-      if (isNaN(newCost)) {
-        console.log(`Invalid cost in settings for ${wood.species}/${wood.thickness}, preserving original cost:`, wood.cost);
-        return wood;
-      }
-      
-      console.log(`Updating cost for ${wood.species}/${wood.thickness} from ${wood.cost} to ${newCost}`);
+    const woodEntries = (entry.details?.materials?.wood || []).map(woodDoc => {
+      let woodData = woodDoc._doc ? woodDoc._doc : (typeof woodDoc.toObject === 'function' ? woodDoc.toObject() : woodDoc);
       return {
-        ...wood,
-        cost: newCost
+        species: woodData.species,
+        thickness: woodData.thickness,
+        boardFeet: Number(woodData.boardFeet) || 0,
+        cost: Number(woodData.cost) || 0,
+        _id: woodData._id
       };
     });
     
-    // Calculate all wood costs with proper logging
-    const woodBaseCost = updatedWoodEntries.reduce((sum, wood) => {
-      const boardFeet = wood.boardFeet;
-      const cost = wood.cost;
-      const totalCost = boardFeet * cost;
-      console.log(`Wood calculation: ${wood.species}/${wood.thickness} - ${boardFeet} BF * $${cost} = $${totalCost}`);
-      return sum + totalCost;
-    }, 0);
+    const updatedWoodEntries = woodEntries.map(wood => {
+      if (!wood.species || !wood.thickness) return wood;
+      const newCost = Number(currentSettings.materials?.wood?.[wood.species]?.[wood.thickness]?.cost);
+      return isNaN(newCost) ? wood : { ...wood, cost: newCost };
+    });
     
-    console.log('Wood base cost:', woodBaseCost);
-    
+    const woodBaseCost = updatedWoodEntries.reduce((sum, wood) => sum + (wood.boardFeet * wood.cost), 0);
     const woodWasteFactor = Number(currentSettings.materials?.woodWasteFactor) || 0;
     const woodWasteCost = woodBaseCost * (woodWasteFactor / 100);
     const totalWoodCost = woodBaseCost + woodWasteCost;
-    
-    console.log('Wood waste cost:', woodWasteCost);
-    console.log('Total wood cost:', totalWoodCost);
     
     // ==============================
     // Process Upholstery Materials
     // ==============================
     let upholsteryItems = [];
-    console.log('Raw upholstery data:', JSON.stringify(entry.details?.materials?.upholstery, null, 2));
-
     if (entry.details?.materials?.upholstery?.items) {
-      // Ensure we're working with an array
       let itemsArray = entry.details.materials.upholstery.items;
-      
-      // If items is a string (which seems to be happening), try to parse it
       if (typeof itemsArray === 'string') {
-        try {
-          itemsArray = JSON.parse(itemsArray);
-        } catch (e) {
-          console.error('Failed to parse upholstery items string:', e);
-          // Fall back to empty array if parsing fails
-          itemsArray = [];
-        }
+        try { itemsArray = JSON.parse(itemsArray); } catch (e) { itemsArray = []; }
       }
-      
-      // Now process each item in the array
-      for (let i = 0; i < itemsArray.length; i++) {
-        const item = itemsArray[i];
-        console.log(`Processing upholstery item ${i}:`, JSON.stringify(item, null, 2));
-        
-        upholsteryItems.push({
-          name: item.name || '',
-          type: item.type || 'upholstery',
-          squareFeet: Number(item.squareFeet) || 0,
-          costPerSqFt: Number(item.costPerSqFt) || 0,
-          cost: Number(item.cost) || (Number(item.squareFeet) * Number(item.costPerSqFt)) || 0,
-          materialId: item.materialId || ''
-        });
-      }
+      upholsteryItems = itemsArray.map(item => ({
+        name: item.name || '',
+        type: item.type || 'upholstery',
+        squareFeet: Number(item.squareFeet) || 0,
+        costPerSqFt: Number(item.costPerSqFt) || 0,
+        cost: Number(item.cost) || (Number(item.squareFeet) * Number(item.costPerSqFt)) || 0,
+        materialId: item.materialId || ''
+      }));
     }
-
-    console.log('Processed upholstery items:', JSON.stringify(upholsteryItems, null, 2));
 
     // ==============================
     // Recalculate Other Costs
     // ==============================
-    const cncCost = Number(entry.details?.cnc?.runtime || 0) * Number(currentSettings.cnc?.rate || 0);
-    
+    const cncCost = (Number(entry.details?.cnc?.runtime) || 0) * (Number(currentSettings.cnc?.rate) || 0);
     const totalLaborHours = newLaborBreakdown.reduce((sum, item) => sum + (Number(item.hours) || 0), 0);
-    const cncRuntime = Number(entry.details?.cnc?.runtime || 0);
-    const totalHoursWithCNC = totalLaborHours + cncRuntime;
+    const totalHoursWithCNC = totalLaborHours + (Number(entry.details?.cnc?.runtime) || 0);
     const overheadRate = calculateOverheadRate(currentSettings.overhead);
     const overheadCost = totalHoursWithCNC * overheadRate;
-
-    // Calculate materials costs
-    const sheetCost = entry.details?.materials?.sheet
-      ? entry.details.materials.sheet.reduce((sum, sheet) => sum + ((Number(sheet.quantity) || 1) * (Number(sheet.pricePerSheet) || 0)), 0)
-      : 0;
-      
-    const upholsteryCost = upholsteryItems.length > 0 
-      ? upholsteryItems.reduce((sum, item) => sum + (Number(item.cost) || 0), 0)
-      : 0;
-
-    console.log('Upholstery cost:', upholsteryCost);
-
-    const hardwareCost = entry.details?.materials?.hardware
-      ? entry.details.materials.hardware.reduce((sum, hw) => sum + ((Number(hw.quantity) || 0) * (Number(hw.costPerUnit || hw.pricePerUnit) || 0)), 0)
-      : 0;
-      
-    const finishingCost = entry.details?.materials?.finishing
-      ? calculateFinishingCost(entry.details.materials.finishing)
-      : 0;
+    const sheetCost = (entry.details?.materials?.sheet || []).reduce((sum, sheet) => sum + ((Number(sheet.quantity) || 1) * (Number(sheet.pricePerSheet) || 0)), 0);
+    const upholsteryCost = upholsteryItems.reduce((sum, item) => sum + (Number(item.cost) || 0), 0);
+    const hardwareCost = (entry.details?.materials?.hardware || []).reduce((sum, hw) => sum + ((Number(hw.quantity) || 0) * (Number(hw.costPerUnit || hw.pricePerUnit) || 0)), 0);
+    const finishingCost = calculateFinishingCost(entry.details?.materials?.finishing);
     
-    // ==============================
-    // Calculate Component Costs - FIXED
-    // ==============================
-    console.log('Processing components for cost calculation');
-    // Ensure components field exists and is an array
+    // *** START OF FIX ***
     const components = Array.isArray(entry.details?.components) ? entry.details.components : [];
-    console.log(`Found ${components.length} components:`, JSON.stringify(components, null, 2));
-    
     const componentsCost = components.reduce((sum, component) => {
       const cost = Number(component.cost) || 0;
       const quantity = Number(component.quantity) || 1;
-      const totalCost = cost * quantity;
-      console.log(`Component calculation: ${component.name} - $${cost} × ${quantity} = $${totalCost}`);
-      return sum + totalCost;
+      return sum + (cost * quantity);
     }, 0);
-    
-    console.log('Total components cost:', componentsCost);
-      
-    // Add components cost to the total - FIXED
-    const newTotalCost = (baseLaborCost + surchargeCost) + 
-      totalWoodCost + 
-      sheetCost + 
-      upholsteryCost + 
-      hardwareCost + 
-      finishingCost + 
-      cncCost + 
-      overheadCost +
-      componentsCost;  // FIXED: Added component costs to the total
+    // *** END OF FIX ***
 
-    console.log('New total cost calculation:');
-    console.log(`Labor: ${baseLaborCost} + ${surchargeCost} = ${baseLaborCost + surchargeCost}`);
-    console.log(`Wood: ${totalWoodCost}`);
-    console.log(`Sheet: ${sheetCost}`);
-    console.log(`Upholstery: ${upholsteryCost}`);
-    console.log(`Hardware: ${hardwareCost}`);
-    console.log(`Finishing: ${finishingCost}`);
-    console.log(`CNC: ${cncCost}`);
-    console.log(`Overhead: ${overheadCost}`);
-    console.log(`Components: ${componentsCost}`); // FIXED: Added log entry
-    console.log(`Total: ${newTotalCost}`);
-    
+    const newTotalCost = (baseLaborCost + surchargeCost) + totalWoodCost + sheetCost + upholsteryCost + hardwareCost + finishingCost + cncCost + overheadCost + componentsCost;
+
     // ==============================
     // Save the Updated Entry
     // ==============================
@@ -582,23 +359,9 @@ router.post('/:id/sync', async (req, res) => {
         'details.overhead.hours': totalHoursWithCNC,
         'details.overhead.cost': overheadCost,
         'details.materials.wood': updatedWoodEntries,
-        'details.materials.upholstery': JSON.parse(JSON.stringify({
-          items: upholsteryItems,
-          total: upholsteryCost
-        })),
-        'details.materials.computedWood': {
-          baseCost: woodBaseCost,
-          wasteCost: woodWasteCost,
-          totalCost: totalWoodCost
-        },
-        // No change to components - we just need to include their cost in the total
-        lastSyncedSettings: {
-          margins: currentSettings.margins,
-          labor: currentSettings.labor,
-          cnc: currentSettings.cnc,
-          overhead: currentSettings.overhead,
-          materials: currentSettings.materials,
-        }
+        'details.materials.upholstery': { items: upholsteryItems, total: upholsteryCost },
+        'details.materials.computedWood': { baseCost: woodBaseCost, wasteCost: woodWasteCost, totalCost: totalWoodCost },
+        lastSyncedSettings: currentSettings
       },
       { new: true }
     );
@@ -613,8 +376,7 @@ router.post('/:id/sync', async (req, res) => {
   }
 });
 
-
-// Helper function to calculate finishing cost
+// Helper functions
 function calculateFinishingCost(finishing) {
   if (!finishing?.materialId || !finishing?.surfaceArea || !finishing?.coats || !finishing?.coverage) {
     return 0;
@@ -625,13 +387,12 @@ function calculateFinishingCost(finishing) {
   return litersWithWaste * (Number(finishing.costPerLiter) || 0);
 }
 
-// Helper function to calculate overhead rate
 function calculateOverheadRate(overhead) {
   if (!overhead) return 0;
   const { monthlyOverhead, employees, monthlyProdHours, monthlyCNCHours } = overhead;
-  const totalEmployeeHours = Number(employees || 0) * Number(monthlyProdHours || 0);
-  const totalCapacity = totalEmployeeHours + Number(monthlyCNCHours || 0);
-  return totalCapacity > 0 ? Number(monthlyOverhead || 0) / totalCapacity : 0;
+  const totalEmployeeHours = (Number(employees) || 0) * (Number(monthlyProdHours) || 0);
+  const totalCapacity = totalEmployeeHours + (Number(monthlyCNCHours) || 0);
+  return totalCapacity > 0 ? (Number(monthlyOverhead) || 0) / totalCapacity : 0;
 }
 
 module.exports = router;
