@@ -7,28 +7,27 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3001;
 
-// --- DYNAMIC CORS CONFIGURATION ---
-// Use an environment variable for the client URL
-
-const clientURL = process.env.CLIENT_URL;
-
-const whitelist = [clientURL, 'http://localhost:3000']; // Add your local dev URL if needed
+const clientURL = process.env.CLIENT_URL; // MUST be like: https://your-frontend.onrender.com
+const whitelist = [clientURL, 'http://localhost:3000', 'http://localhost:5173']; // add your dev ports as needed
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+  origin(origin, cb) {
+    if (!origin) return cb(null, true);             // allow curl/postman/SSR
+    if (whitelist.includes(origin)) return cb(null, true);
+    return cb(new Error('Not allowed by CORS'));
   },
-  methods: "GET,POST,PUT,DELETE",
-  allowedHeaders: "Content-Type,Authorization",
+  methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',      // include OPTIONS
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: false,                                 // set true only if you use cookies
   optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));                  // handle preflight globally
 app.use(express.json());
+
+// (optional) simple healthcheck to test wiring from the browser:
+app.get('/health', (_, res) => res.send('ok'));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
