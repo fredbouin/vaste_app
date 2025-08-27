@@ -1,4 +1,4 @@
-// server/server.js //
+// server/server.js
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -7,10 +7,12 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3001;
 
-// --- EXPANDED CORS CONFIGURATION ---
-// IMPORTANT: Update this with your CLIENT's Render URL
+// --- DYNAMIC CORS CONFIGURATION ---
+// Use an environment variable for the client URL
+const clientURL = process.env.CLIENT_URL; 
+
 const corsOptions = {
-  origin: 'https://vaste-app-client.onrender.com', // Replace if your client has a different URL
+  origin: clientURL, // Use the variable here
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization",
   optionsSuccessStatus: 200
