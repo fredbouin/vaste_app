@@ -42,12 +42,34 @@ const SettingsPage = () => {
     }
   });
 
-  // Load saved settings on mount (from localStorage, if needed)
   useEffect(() => {
-    const savedSettings = localStorage.getItem('calculatorSettings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
+    const loadSettings = async () => {
+      try {
+        // Fetch settings from the database first
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/settings`);
+        if (response.ok) {
+          const dbSettings = await response.json();
+          // If settings are in the DB, update state and localStorage
+          if (dbSettings && Object.keys(dbSettings).length > 0) {
+            setSettings(prevSettings => ({...prevSettings, ...dbSettings}));
+            localStorage.setItem('calculatorSettings', JSON.stringify(dbSettings));
+            console.log('Successfully loaded settings from database.');
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Could not fetch settings from DB, falling back to localStorage.', error);
+      }
+
+      // Fallback to localStorage if DB fetch fails or returns no settings
+      const savedSettings = localStorage.getItem('calculatorSettings');
+      if (savedSettings) {
+        setSettings(JSON.parse(savedSettings));
+        console.log('Loaded settings from localStorage.');
+      }
+    };
+
+    loadSettings();
   }, []);
 
   // This function is called when a settings component changes its values
