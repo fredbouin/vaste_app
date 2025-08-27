@@ -1,4 +1,4 @@
-// server.js
+// server/server.js
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -9,9 +9,11 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3001;
 
-// --- CORRECT CORS CONFIGURATION ---
+// --- EXPANDED CORS CONFIGURATION ---
 const corsOptions = {
   origin: 'https://vaste-app-client.onrender.com', // Your frontend URL
+  methods: "GET,POST,PUT,DELETE", // Explicitly allow these methods
+  allowedHeaders: "Content-Type,Authorization", // Explicitly allow these headers
   optionsSuccessStatus: 200
 };
 
