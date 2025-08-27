@@ -8,8 +8,7 @@
 
 /**
  * Calculate labor costs based on input data and settings
- * 
- * @param {Object} laborData - The labor input data
+ * * @param {Object} laborData - The labor input data
  * @param {Object} settings - Application settings containing labor rates and surcharges
  * @returns {Object} Calculated labor costs and breakdown
  */
@@ -70,8 +69,7 @@ const calculateLabor = (laborData, settings) => {
 
 /**
  * Calculate wood materials cost
- * 
- * @param {Array} woodEntries - Wood material entries
+ * * @param {Array} woodEntries - Wood material entries
  * @param {Object} settings - Application settings
  * @returns {Object} Wood cost calculation results
  */
@@ -132,8 +130,7 @@ const calculateWoodCost = (woodEntries, settings) => {
 
 /**
  * Calculate finishing materials cost
- * 
- * @param {Object} finishing - Finishing material data
+ * * @param {Object} finishing - Finishing material data
  * @returns {Number} Total finishing cost
  */
 const calculateFinishingCost = (finishing) => {
@@ -148,8 +145,7 @@ const calculateFinishingCost = (finishing) => {
 
 /**
  * Calculate overhead rate based on settings
- * 
- * @param {Object} overhead - Overhead settings
+ * * @param {Object} overhead - Overhead settings
  * @returns {Number} Calculated overhead rate
  */
 const calculateOverheadRate = (overhead) => {
@@ -162,8 +158,7 @@ const calculateOverheadRate = (overhead) => {
 
 /**
  * Calculate hardware costs from hardware entries
- * 
- * @param {Array} hardware - Hardware entries
+ * * @param {Array} hardware - Hardware entries
  * @returns {Number} Total hardware cost
  */
 const calculateHardwareCost = (hardware) => {
@@ -178,8 +173,7 @@ const calculateHardwareCost = (hardware) => {
 
 /**
  * Calculate upholstery costs
- * 
- * @param {Object} upholstery - Upholstery data object
+ * * @param {Object} upholstery - Upholstery data object
  * @returns {Number} Total upholstery cost
  */
 const calculateUpholsteryCost = (upholstery) => {
@@ -201,8 +195,7 @@ const calculateUpholsteryCost = (upholstery) => {
 
 /**
  * Calculate sheet material costs
- * 
- * @param {Array} sheets - Sheet material entries
+ * * @param {Array} sheets - Sheet material entries
  * @returns {Number} Total sheet cost
  */
 const calculateSheetCost = (sheets) => {
@@ -217,8 +210,7 @@ const calculateSheetCost = (sheets) => {
 
 /**
  * Calculate components costs
- * 
- * @param {Array} components - Component entries
+ * * @param {Array} components - Component entries
  * @returns {Number} Total component cost
  */
 const calculateComponentsCost = (components) => {
@@ -233,8 +225,7 @@ const calculateComponentsCost = (components) => {
 
 /**
  * Calculate pricing for a furniture piece or component
- * 
- * @param {Object} itemData - The piece or component data
+ * * @param {Object} itemData - The piece or component data
  * @param {Object} settings - Application settings
  * @returns {Object} Complete cost calculation results
  */
@@ -332,8 +323,7 @@ const calculatePricing = (itemData, settings) => {
 
 /**
  * Calculate price based on cost and margin
- * 
- * @param {Number} cost - Base cost
+ * * @param {Number} cost - Base cost
  * @param {Number} marginPercent - Margin percentage
  * @returns {Number} Calculated price
  */
