@@ -1,8 +1,8 @@
 // src/pages/pricing/components/ComponentSelectionPanel.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, ChevronUp, X, Plus } from 'lucide-react';
 
-const ComponentSelectionPanel = ({ selectedComponents, onAddComponent, onRemoveComponent, onUpdateQuantity }) => {
+const ComponentSelectionPanel = ({ selectedComponents, onRemoveComponent, onUpdateQuantity }) => {
   const [expandedComponent, setExpandedComponent] = useState(null);
   const [showComponentLibrary, setShowComponentLibrary] = useState(false);
 
@@ -38,7 +38,7 @@ const ComponentSelectionPanel = ({ selectedComponents, onAddComponent, onRemoveC
       {selectedComponents.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p>No components added yet</p>
-          <p className="text-sm mt-1">Click 'Add Component' to get started</p>
+          <p className="text-sm mt-1">Click &apos;Add Component&apos; to get started</p>
         </div>
       ) : (
         <div className="space-y-4">

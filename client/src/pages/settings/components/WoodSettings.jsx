@@ -1,5 +1,5 @@
 // src/pages/settings/components/WoodSettings.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Trash2, Save, Pencil } from 'lucide-react';
 
 const WoodSettings = ({ settings, onSettingsChange }) => {
@@ -61,7 +61,7 @@ const WoodSettings = ({ settings, onSettingsChange }) => {
   };
 
   const handleRemoveSpecies = (speciesName) => {
-    const { [speciesName]: removed, ...remainingWood } = settings.materials.wood;
+    const { [speciesName]: _removed, ...remainingWood } = settings.materials.wood;
     onSettingsChange('materials', {
       ...settings.materials,
       wood: remainingWood
@@ -329,7 +329,7 @@ export default WoodSettings;
 
 
 // // src/pages/settings/components/WoodSettings.jsx
-// import React, { useState } from 'react';
+// import { useState } from 'react';
 // import { Plus, Trash2, Save, Pencil } from 'lucide-react';
 
 // const WoodSettings = ({ settings, onSettingsChange }) => {

@@ -1,6 +1,6 @@
 // src/pages/settings/components/MarginSettings.jsx
-import React, { useState } from 'react';
-import { Save, Check, Pencil, Info } from 'lucide-react';
+import { useState } from 'react';
+import { Save, Pencil, Info } from 'lucide-react';
 
 const MarginSettings = ({ settings, onSettingsChange }) => {
   const [editingMargin, setEditingMargin] = useState({

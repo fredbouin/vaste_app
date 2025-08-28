@@ -1,5 +1,4 @@
 // src/components/layout/MainLayout.jsx
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Calendar, Calculator, FileText, Settings } from 'lucide-react';
 

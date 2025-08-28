@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getAvailableEmployees } from '../../../data/employeesData';
 
 const SidePanel = ({ 
@@ -160,7 +160,7 @@ const SidePanel = ({
 
 export default SidePanel;
 
-// import React, { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 // import { getAvailableEmployees } from '../../../data/employeesData';
 
 // const SidePanel = ({ 

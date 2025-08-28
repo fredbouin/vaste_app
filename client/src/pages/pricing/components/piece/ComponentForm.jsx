@@ -1,5 +1,4 @@
 // src/pages/pricing/components/piece/ComponentForm.jsx
-import React from 'react';
 
 const ComponentForm = ({ data, onChange, setActivePanel }) => {
   const handleSaveAndContinue = () => {
@@ -73,8 +72,7 @@ const ComponentForm = ({ data, onChange, setActivePanel }) => {
 export default ComponentForm;
 
 // // src/pages/pricing/components/piece/ComponentForm.jsx
-// import React from 'react';
-
+// 
 // const ComponentForm = ({ data, onChange }) => (
 //   <div className="space-y-4 border p-4 rounded-lg">
 //     <div>

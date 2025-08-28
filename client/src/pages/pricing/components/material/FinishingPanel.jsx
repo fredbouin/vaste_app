@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { calculateFinishingCost } from '../../../../services/calculationService';
 
 const FinishingPanel = ({ finishing = {}, onChange }) => {

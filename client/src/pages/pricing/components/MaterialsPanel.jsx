@@ -1,5 +1,5 @@
 // src/pages/pricing/components/MaterialsPanel.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Minus, Pencil } from 'lucide-react';
 import HardwarePanel from './material/HardwarePanel';
 import SheetPanel from './material/SheetPanel';

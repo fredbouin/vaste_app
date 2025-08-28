@@ -1,5 +1,5 @@
 // src/pages/settings/components/SheetSettings.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 
 const SheetSettings = ({ settings, onSettingsChange }) => {
@@ -113,9 +113,9 @@ const SheetSettings = ({ settings, onSettingsChange }) => {
               }))}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             >
-              <option value="4x8">4' x 8'</option>
-              <option value="5x5">5' x 5'</option>
-              <option value="5x10">5' x 10'</option>
+              <option value="4x8">4&apos; x 8&apos;</option>
+              <option value="5x5">5&apos; x 5&apos;</option>
+              <option value="5x10">5&apos; x 10&apos;</option>
             </select>
           </div>
 

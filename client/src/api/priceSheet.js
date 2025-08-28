@@ -2,7 +2,9 @@
 import axios from 'axios';
 
 //const API_URL = 'http://localhost:3001/api/price-sheet';
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/price-sheet` || 'http://localhost:3001/api/price-sheet';
+const API_URL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api/price-sheet`
+  : 'http://localhost:3001/api/price-sheet';
 
 
 

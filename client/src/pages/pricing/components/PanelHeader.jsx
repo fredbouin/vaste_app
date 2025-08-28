@@ -1,5 +1,4 @@
 // src/pages/pricing/components/PanelHeader.jsx
-import React from 'react';
 
 const PanelHeader = ({ title, isActive, onClick }) => (
   <div 

@@ -1,9 +1,9 @@
 //NEWCODE082625
 // src/pages/pricing/PriceSheet/components/PiecesList.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PriceListItem from './PriceListItem';
 
-const PiecesList = ({ pieces, settings, onEdit, onRemove, onDuplicate, calculatePrice, onSync }) => {
+const PiecesList = ({ pieces, settings, onEdit, onRemove, onDuplicate, onSync }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
   if (pieces.length === 0) {
@@ -75,8 +75,7 @@ const PiecesList = ({ pieces, settings, onEdit, onRemove, onDuplicate, calculate
                         onEdit={onEdit}
                         onRemove={onRemove}
                         onDuplicate={onDuplicate}
-                        calculatePrice={calculatePrice}
-                       onSync={onSync}
+                        onSync={onSync}
                       />
                     ))}
                   </div>
@@ -93,7 +92,7 @@ const PiecesList = ({ pieces, settings, onEdit, onRemove, onDuplicate, calculate
 export default PiecesList;
 
 // src/pages/pricing/PriceSheet/components/PiecesList.jsx
-// import React, { useState } from 'react';
+// import { useState } from 'react';
 // import PriceListItem from './PriceListItem';
 
 // const PiecesList = ({ pieces, settings, onEdit, onRemove, onDuplicate, calculatePrice, onSync }) => {

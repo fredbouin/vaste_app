@@ -1,5 +1,5 @@
 // src/pages/settings/components/FinishingSettings.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 
 const FinishingSettings = ({ settings, onSettingsChange }) => {

@@ -1,8 +1,7 @@
 // src/pages/pricing/components/ComponentLibraryPanel.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, Trash2 } from 'lucide-react';
 import { priceSheetApi } from '../../../api/priceSheet';
-
 
 const ComponentLibraryPanel = ({ onAddComponent }) => {
   const [components, setComponents] = useState([]);
@@ -70,11 +69,17 @@ const ComponentLibraryPanel = ({ onAddComponent }) => {
   //   });
   // };
 
-  // const filteredComponents = components.filter(component =>
-  //   component.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //   component.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //   component.description.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
+  const calculateComponentCost = (component) => {
+    const laborHours = Number(component?.labor?.stockProduction?.hours || 0);
+    const laborRate = Number(component?.labor?.stockProduction?.rate || 0);
+    return laborHours * laborRate;
+  };
+
+  const filteredComponents = components.filter(component =>
+    (component.componentName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (component.componentType || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (component.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleSaveComponent = async () => {
     if (!newComponent.name || !newComponent.type) {

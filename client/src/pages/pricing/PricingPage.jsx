@@ -1,4 +1,3 @@
-import React from 'react';
 import FurniturePricingCalculator from './features/calculator/components/FurniturePricingCalculator';
 
 const PricingPage = () => {

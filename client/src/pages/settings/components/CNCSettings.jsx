@@ -1,6 +1,6 @@
 // src/pages/settings/components/CNCSettings.jsx
-import React, { useState } from 'react';
-import { Save, Pencil } from 'lucide-react';
+import { useState } from 'react';
+import { Pencil } from 'lucide-react';
 
 const CNCSettings = ({ settings, onSettingsChange }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -208,7 +208,7 @@ const CNCSettings = ({ settings, onSettingsChange }) => {
             <div className="text-center py-4">
               <h3 className="text-lg font-medium text-gray-900 mb-2">Set Machine Rate</h3>
               <p className="text-gray-500 mb-4">
-                Configure your CNC machine's base rate and operating costs
+                Configure your CNC machine&apos;s base rate and operating costs
               </p>
               <button
                 onClick={startEditing}

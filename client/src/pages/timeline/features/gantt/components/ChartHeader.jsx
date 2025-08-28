@@ -1,4 +1,3 @@
-import React from 'react';
 import TimelineModeToggle from './TimelineModeToggle';
 
 const ChartHeader = ({ timelineMode, onModeChange }) => {
