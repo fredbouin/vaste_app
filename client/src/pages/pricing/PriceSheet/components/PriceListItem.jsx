@@ -1,35 +1,111 @@
-//NEWCODE082625
-import React, { useState, useEffect } from 'react';
+//NEWCODE082725B
+import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, ChevronRight, Trash2, Pencil, Copy, RefreshCw, DollarSign } from 'lucide-react';
 import ExpandedDetails from './ExpandedDetails';
 import { priceSheetApi } from '../../../../api/priceSheet';
-import { calculatePrice } from '../../../../utils/calculationUtils';
+import { calculatePrice, calculateTotalCosts } from '../../../../utils/calculationUtils';
+import { toArray } from '../../../../utils/normalize';
 
-// --- helpers to preserve local nested data when server returns partials ---
+// ---------- helpers ----------
 const hasKeys = (obj) => obj && typeof obj === 'object' && Object.keys(obj).length > 0;
+const num = (v) => (v == null ? 0 : Number(v) || 0);
 
-const deepMergePriceItem = (prev, next) => {
-  const merged = { ...prev, ...next };
+const isMeaningfulMaterials = (m) => {
+  if (!m || typeof m !== 'object') return false;
+  if (num(m.totalCost) > 0) return true;
+  // If any category looks non-empty with numeric signals, treat as meaningful
+  const woodOk = Array.isArray(m.wood) && m.wood.length > 0 && m.wood.some(w => num(w?.totalCost) > 0);
+  const sheetOk = Array.isArray(m.sheet) && m.sheet.some(s => num(s?.cost) > 0);
+  const hwOk = Array.isArray(m.hardware) && m.hardware.some(h => num(h?.pricePerPack) > 0 || num(h?.cost) > 0);
+  const finOk = (m.finishing && (num(m.finishing.cost) > 0 || Array.isArray(m.finishing.items)));
+  const uphOk = (m.upholstery && (num(m.upholstery.cost) > 0 || Array.isArray(m.upholstery.items)));
+  const compWood = m.computedWood && (num(m.computedWood.totalCost) > 0 || num(m.computedWood.baseCost) > 0);
+  return woodOk || sheetOk || hwOk || finOk || uphOk || compWood;
+};
 
-  const prevDetails = prev?.details || {};
-  const nextDetails = next?.details || {};
+const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
+  // Start shallow
+  const merged = { ...prevDetails, ...nextDetails };
 
-  const pickObj = (p, n) => (hasKeys(n) ? n : p);
+  // Materials: keep previous unless the server actually provided meaningful data
+  if (!isMeaningfulMaterials(nextDetails.materials)) {
+    merged.materials = prevDetails.materials;
+  }
 
-  merged.details = {
-    ...prevDetails,
-    ...nextDetails,
-    materials: pickObj(prevDetails.materials, nextDetails.materials),
-    labor: pickObj(prevDetails.labor, nextDetails.labor),
-    cnc: pickObj(prevDetails.cnc, nextDetails.cnc),
-    overhead: pickObj(prevDetails.overhead, nextDetails.overhead),
-    components: Array.isArray(nextDetails.components)
-      ? nextDetails.components
-      : prevDetails.components,
-  };
+  // CNC: if server has zeroed runtime/cost, keep previous runtime/cost
+  if (nextDetails.cnc && prevDetails.cnc) {
+    const nextRuntime = num(nextDetails.cnc.runtime);
+    const nextCost = num(nextDetails.cnc.cost);
+    if (nextRuntime === 0 && nextCost === 0) {
+      merged.cnc = { ...prevDetails.cnc, rate: nextDetails.cnc.rate ?? prevDetails.cnc.rate };
+    }
+  }
+
+  // Components: backend sometimes returns an object or empty — keep previous array when that happens
+  if (!Array.isArray(nextDetails.components) || nextDetails.components.length === 0) {
+    merged.components = prevDetails.components;
+  }
+
+  // Labor/Overhead: usually OK to accept server’s recalculated breakdown & rate/hours
+  // (If you want to be stricter, add similar guards here.)
 
   return merged;
 };
+
+const deepMergePriceItem = (prev, next) => {
+  const merged = { ...prev, ...next };
+  merged.details = smartMergeDetails(prev?.details, next?.details);
+  return merged;
+};
+
+// Compute a local "truth" cost from details + settings so UI doesn't trust partial server cost
+const computeDerivedCost = (item, settings) => {
+  const breakdown = toArray(item?.details?.labor?.breakdown);
+  const regularLabor = breakdown.filter(e => e?.type !== 'Labor Surcharge');
+  const surchargeEntry = breakdown.find(e => e?.type === 'Labor Surcharge');
+
+  const { pieceCosts = {} } = calculateTotalCosts({
+    data: {
+      labor: {
+        ...Object.fromEntries(
+          regularLabor.map(entry => {
+            let key = entry.type.replace(/\s+/g, '');
+            if (key === 'StockProduction') key = 'stockProduction';
+            if (key === 'CNCOperator') key = 'cncOperator';
+            key = key.charAt(0).toLowerCase() + key.slice(1);
+            return [key, { hours: num(entry.hours), rate: num(entry.rate) }];
+          })
+        )
+      },
+      materials: item?.details?.materials || {},
+      cnc: item?.details?.cnc || {},
+    },
+    settings,
+    totalLaborHours: regularLabor.reduce((sum, e) => sum + num(e.hours), 0),
+    calculateOverheadRate: () => num(item?.details?.overhead?.rate),
+    components: toArray(item?.details?.components)
+  }) || {};
+
+  // Prefer explicit pieceCosts.total if your util supplies it; otherwise sum known parts.
+  const laborCost =
+    num(pieceCosts?.labor?.cost) ||
+    (regularLabor.reduce((t, e) => t + (num(e.cost) || num(e.hours) * num(e.rate)), 0) + num(surchargeEntry?.cost));
+
+  const total =
+    (num(pieceCosts?.total)) ||
+    (laborCost +
+      num(pieceCosts?.materials?.wood?.totalCost) +
+      num(pieceCosts?.materials?.sheet?.cost) +
+      num(pieceCosts?.materials?.upholstery?.cost) +
+      num(pieceCosts?.materials?.hardware?.cost) +
+      num(pieceCosts?.materials?.finishing?.cost) +
+      num(pieceCosts?.cnc?.cost) +
+      num(pieceCosts?.overhead?.cost) +
+      num(pieceCosts?.components?.cost));
+
+  return total;
+};
+// ---------- end helpers ----------
 
 const PriceListItem = ({
   item: initialItem,
@@ -54,7 +130,10 @@ const PriceListItem = ({
     setManualPrice(initialItem.manualPrice || '');
   }, [initialItem]);
 
-  const wholesalePrice = calculatePrice(itemState.cost, settings?.margins?.wholesale);
+  // Compute cost from details + settings so UI isn't dependent on server's "cost" field
+  const derivedCost = useMemo(() => computeDerivedCost(itemState, settings), [itemState, settings]);
+
+  const wholesalePrice = calculatePrice(derivedCost, settings?.margins?.wholesale);
   const msrpPrice = calculatePrice(wholesalePrice, settings?.margins?.msrp);
   const prices = { wholesale: wholesalePrice, msrp: msrpPrice };
 
@@ -101,11 +180,15 @@ const PriceListItem = ({
         ? { ...updatedFromServer, manualPrice }
         : updatedFromServer;
 
-      // 🔧 Deep-merge so we keep local nested details (materials, labor, cnc, overhead, components)
+      // Smart deep-merge (keeps materials/components if server returns empty/zeroed)
       const mergedUpdated = deepMergePriceItem(itemState, withManualPreserved);
 
-      setItemState(mergedUpdated);
-      if (onSync) onSync(mergedUpdated);
+      // Override displayed cost with locally derived cost so price doesn't drop
+      const recalc = computeDerivedCost(mergedUpdated, settings);
+      const finalItem = { ...mergedUpdated, cost: recalc };
+
+      setItemState(finalItem);
+      if (onSync) onSync(finalItem);
     } catch (error) {
       console.error('Sync failed:', error);
       setSyncError(error.message || 'Failed to sync');
@@ -185,7 +268,7 @@ const PriceListItem = ({
           {/* Price information */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-right">
             <div className="text-gray-500 text-sm">Cost:</div>
-            <div className="font-medium">${itemState.cost?.toFixed(2) || '0.00'}</div>
+            <div className="font-medium">${derivedCost.toFixed(2)}</div>
 
             <div className="text-gray-500 text-sm">MSRP:</div>
             <div className="font-medium">${msrpPrice?.toFixed(2) || '0.00'}</div>

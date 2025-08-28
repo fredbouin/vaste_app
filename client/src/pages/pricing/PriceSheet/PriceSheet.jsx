@@ -1,38 +1,58 @@
-//NEWCODE082625
-//NEWCODE082625
+//NEWCODE082725B
 
-// src/pages/pricing/PriceSheet/PriceSheet.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PriceListTabs from './components/PriceListTabs';
 import PiecesList from './components/PiecesList';
 import ComponentsList from './components/ComponentsList';
 
-// --- helpers mirrored here so parent also deep-merges list items ---
+// ---------- helpers mirrored here ----------
 const hasKeys = (obj) => obj && typeof obj === 'object' && Object.keys(obj).length > 0;
+const num = (v) => (v == null ? 0 : Number(v) || 0);
 
-const deepMergePriceItem = (prev, next) => {
-  const merged = { ...prev, ...next };
+const isMeaningfulMaterials = (m) => {
+  if (!m || typeof m !== 'object') return false;
+  if (num(m.totalCost) > 0) return true;
+  const woodOk = Array.isArray(m.wood) && m.wood.length > 0 && m.wood.some(w => num(w?.totalCost) > 0);
+  const sheetOk = Array.isArray(m.sheet) && m.sheet.some(s => num(s?.cost) > 0);
+  const hwOk = Array.isArray(m.hardware) && m.hardware.some(h => num(h?.pricePerPack) > 0 || num(h?.cost) > 0);
+  const finOk = (m.finishing && (num(m.finishing.cost) > 0 || Array.isArray(m.finishing.items)));
+  const uphOk = (m.upholstery && (num(m.upholstery.cost) > 0 || Array.isArray(m.upholstery.items)));
+  const compWood = m.computedWood && (num(m.computedWood.totalCost) > 0 || num(m.computedWood.baseCost) > 0);
+  return woodOk || sheetOk || hwOk || finOk || uphOk || compWood;
+};
 
-  const prevDetails = prev?.details || {};
-  const nextDetails = next?.details || {};
+const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
+  const merged = { ...prevDetails, ...nextDetails };
 
-  const pickObj = (p, n) => (hasKeys(n) ? n : p);
+  // Keep previous materials unless server delivered meaningful values
+  if (!isMeaningfulMaterials(nextDetails.materials)) {
+    merged.materials = prevDetails.materials;
+  }
 
-  merged.details = {
-    ...prevDetails,
-    ...nextDetails,
-    materials: pickObj(prevDetails.materials, nextDetails.materials),
-    labor: pickObj(prevDetails.labor, nextDetails.labor),
-    cnc: pickObj(prevDetails.cnc, nextDetails.cnc),
-    overhead: pickObj(prevDetails.overhead, nextDetails.overhead),
-    components: Array.isArray(nextDetails.components)
-      ? nextDetails.components
-      : prevDetails.components,
-  };
+  // CNC: keep previous runtime/cost if server zeroed them
+  if (nextDetails.cnc && prevDetails.cnc) {
+    const nextRuntime = num(nextDetails.cnc.runtime);
+    const nextCost = num(nextDetails.cnc.cost);
+    if (nextRuntime === 0 && nextCost === 0) {
+      merged.cnc = { ...prevDetails.cnc, rate: nextDetails.cnc.rate ?? prevDetails.cnc.rate };
+    }
+  }
+
+  // Components: keep previous if server didn't send a proper array
+  if (!Array.isArray(nextDetails.components) || nextDetails.components.length === 0) {
+    merged.components = prevDetails.components;
+  }
 
   return merged;
 };
+
+const deepMergePriceItem = (prev, next) => {
+  const merged = { ...prev, ...next };
+  merged.details = smartMergeDetails(prev?.details, next?.details);
+  return merged;
+};
+// ---------- end helpers ----------
 
 const PriceSheet = () => {
   const [activeTab, setActiveTab] = useState('pieces');
@@ -111,9 +131,11 @@ const PriceSheet = () => {
         return prev;
       }
 
-      // 🔧 Deep-merge the server’s partial update onto the existing item
+      // Deep-merge: preserve previous nested details if server payload is partial
+      const merged = deepMergePriceItem(existingItem, updatedItem);
+
       const updatedItems = prev[key].map(item =>
-        item._id === updatedItem._id ? deepMergePriceItem(item, updatedItem) : item
+        item._id === updatedItem._id ? merged : item
       );
 
       console.log(`Updated ${key} array, now has ${updatedItems.length} items`);
