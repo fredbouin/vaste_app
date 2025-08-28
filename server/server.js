@@ -17,7 +17,7 @@ const corsOptions = {
     return cb(new Error('Not allowed by CORS'));
   },
   methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',      // include OPTIONS
-  allowedHeaders: 'Content-Type,Authorization',
+  //allowedHeaders: 'Content-Type,Authorization',
   credentials: false,                                 // set true only if you use cookies
   optionsSuccessStatus: 200
 };
