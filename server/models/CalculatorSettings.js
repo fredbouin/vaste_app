@@ -15,7 +15,8 @@ const calculatorSettingsSchema = new mongoose.Schema({
     hardware: { type: Array, default: [] },
     finishing: { type: Array, default: [] },
     sheet: { type: Array, default: [] },
-    upholsteryMaterials: { type: Array, default: [] }
+    upholsteryMaterials: { type: Array, default: [] },
+    woodWasteFactor: { type: Number, default: 0 }
   },
   cnc: {
     rate: { type: Number, default: 0 },
