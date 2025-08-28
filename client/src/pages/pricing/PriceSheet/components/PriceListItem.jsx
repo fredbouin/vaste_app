@@ -135,7 +135,12 @@ const PriceListItem = ({
 
   const wholesalePrice = calculatePrice(derivedCost, settings?.margins?.wholesale);
   const msrpPrice = calculatePrice(wholesalePrice, settings?.margins?.msrp);
-  const prices = { wholesale: wholesalePrice, msrp: msrpPrice };
+  // Include manual price in the prices object so downstream components can show it
+  const prices = {
+    wholesale: wholesalePrice,
+    msrp: msrpPrice,
+    custom: itemState.manualPrice ?? null
+  };
 
   const relevantSettings = settings
     ? {
@@ -269,6 +274,9 @@ const PriceListItem = ({
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-right">
             <div className="text-gray-500 text-sm">Cost:</div>
             <div className="font-medium">${derivedCost.toFixed(2)}</div>
+
+            <div className="text-gray-500 text-sm">Wholesale:</div>
+            <div className="font-medium">${wholesalePrice?.toFixed(2) || '0.00'}</div>
 
             <div className="text-gray-500 text-sm">MSRP:</div>
             <div className="font-medium">${msrpPrice?.toFixed(2) || '0.00'}</div>
