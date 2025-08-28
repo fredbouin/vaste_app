@@ -24,7 +24,8 @@ const SettingsPage = () => {
       hardware: [],
       finishing: [],
       sheet: [],
-      upholsteryMaterials: []
+      upholsteryMaterials: [],
+      woodWasteFactor: ''
     },
     cnc: {
       rate: '',
