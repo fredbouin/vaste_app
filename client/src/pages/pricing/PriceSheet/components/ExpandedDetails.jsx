@@ -126,6 +126,7 @@ const ExpandedDetails = ({ item, isComponent, settings, prices }) => {
       effectiveMargin: customPrice > 0 ? ((customPrice - totalCost) / customPrice) * 100 : 0
     };
   }
+  const salePrice = prices?.custom ?? prices?.msrp ?? 0;
 
   return (
     <div className="px-4 py-3 text-sm bg-gray-50">
@@ -355,8 +356,8 @@ const ExpandedDetails = ({ item, isComponent, settings, prices }) => {
 
                   <div className="flex justify-between font-medium pt-1 mt-1 border-t border-gray-100">
                     <span>Estimated Profit</span>
-                    <span className={prices?.custom && prices.custom < totalCost ? 'text-red-600' : 'text-green-600'}>
-                      ${prices?.custom ? (prices.custom - totalCost).toFixed(2) : '0.00'}
+                    <span className={salePrice < totalCost ? 'text-red-600' : 'text-green-600'}>
+                      ${(salePrice - totalCost).toFixed(2)}
                     </span>
                   </div>
                   
