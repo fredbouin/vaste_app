@@ -271,12 +271,12 @@ const calculatePricing = (itemData, settings) => {
   
   // Calculate wood materials
   const woodResult = calculateWoodCost(itemData.materials?.wood || [], settings);
-  
+
   // Calculate other material costs
-  const finishingCost = calculateFinishingCost(itemData.materials?.finishing || {});
-  const hardwareCost = calculateHardwareCost(itemData.materials?.hardware || []);
-  const upholsteryCost = calculateUpholsteryCost(itemData.materials?.upholstery || {});
-  const sheetCost = calculateSheetCost(itemData.materials?.sheet || []);
+  const finishingCost = calculateFinishingCost(itemData.materials?.finishing || {}, settings);
+  const hardwareCost = calculateHardwareCost(itemData.materials?.hardware || [], settings);
+  const upholsteryCost = calculateUpholsteryCost(itemData.materials?.upholstery || {}, settings);
+  const sheetCost = calculateSheetCost(itemData.materials?.sheet || [], settings);
   
   // Calculate CNC cost
   const cncRuntime = Number(itemData.cnc?.runtime) || 0;
