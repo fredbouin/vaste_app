@@ -332,25 +332,32 @@ const ExpandedDetails = ({ item, isComponent, settings, prices }) => {
               {!isComponent ? (
                 <>
                   <div className="flex justify-between items-baseline text-sm">
-                    <span className="text-gray-600">Base MSRP ({settings?.margins?.msrp || 0}%)</span>
+                    <span className="text-gray-600">Estimated Cost</span>
+                    <span className="font-medium text-gray-900 tabular-nums">
+                      ${formatCurrency(totalCost)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-baseline text-sm">
+                    <span className="text-gray-600">Wholesale ({settings?.margins?.wholesale || 0}%)</span>
+                    <span className="font-medium text-gray-900 tabular-nums">
+                      ${prices.wholesale ? prices.wholesale.toFixed(2) : '0.00'}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-baseline text-sm">
+                    <span className="text-gray-600">MSRP ({settings?.margins?.msrp || 0}%)</span>
                     <span className="font-medium text-gray-900 tabular-nums">
                       ${prices.msrp ? prices.msrp.toFixed(2) : '0.00'}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between items-baseline text-sm">
                     <span className="text-gray-600">
                       Custom Price{prices?.custom ? '' : ' (not set)'}
                     </span>
                     <span className="font-medium text-gray-900 tabular-nums">
                       ${prices?.custom ? prices.custom.toFixed(2) : '0.00'}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between items-baseline text-sm">
-                    <span className="text-gray-600">Estimated Cost</span>
-                    <span className="font-medium text-gray-900 tabular-nums">
-                      ${formatCurrency(totalCost)}
                     </span>
                   </div>
 

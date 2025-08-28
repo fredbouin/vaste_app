@@ -275,6 +275,9 @@ const PriceListItem = ({
             <div className="text-gray-500 text-sm">Cost:</div>
             <div className="font-medium">${derivedCost.toFixed(2)}</div>
 
+            <div className="text-gray-500 text-sm">Wholesale:</div>
+            <div className="font-medium">${wholesalePrice?.toFixed(2) || '0.00'}</div>
+
             <div className="text-gray-500 text-sm">MSRP:</div>
             <div className="font-medium">${msrpPrice?.toFixed(2) || '0.00'}</div>
 
