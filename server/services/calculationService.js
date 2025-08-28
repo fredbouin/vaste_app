@@ -177,12 +177,22 @@ const calculateHardwareCost = (hardware, settings) => {
   
   return hardware.reduce((sum, item) => {
     const quantity = Number(item.quantity) || 0;
-    
+
     // Find the latest price from settings
     const hardwareSettings = settings?.materials?.hardware?.find(h => h.id === Number(item.hardwareId));
-    const pricePerUnit = hardwareSettings 
-      ? (Number(hardwareSettings.pricePerPack) / Number(hardwareSettings.unitsPerPack)) 
-      : (Number(item.pricePerUnit) || 0);
+    let pricePerUnit;
+
+    if (hardwareSettings) {
+      pricePerUnit = (Number(hardwareSettings.pricePerPack) / Number(hardwareSettings.unitsPerPack)) || 0;
+    } else if (item.pricePerUnit != null) {
+      pricePerUnit = Number(item.pricePerUnit) || 0;
+    } else if (item.costPerUnit != null) {
+      pricePerUnit = Number(item.costPerUnit) || 0;
+    } else if (item.cost != null && quantity > 0) {
+      pricePerUnit = Number(item.cost) / quantity;
+    } else {
+      pricePerUnit = 0;
+    }
 
     return sum + (quantity * pricePerUnit);
   }, 0);
