@@ -95,13 +95,46 @@ router.post('/:id/sync', async (req, res) => {
     // Use the centralized calculation service
     const results = calculatePricing(itemData, currentSettings);
 
-    // Update the entry with the new, correct calculations
+    // Merge recalculated material totals into existing materials
+    const mergedMaterials = {
+      ...(entry.details.materials || {}),
+      ...(results.materials || {}),
+      wood: {
+        ...(entry.details.materials?.wood || {}),
+        ...(results.materials?.wood || {})
+      },
+      finishing: {
+        ...(entry.details.materials?.finishing || {}),
+        ...(results.materials?.finishing || {})
+      },
+      hardware: {
+        ...(entry.details.materials?.hardware || {}),
+        ...(results.materials?.hardware || {})
+      },
+      upholstery: {
+        ...(entry.details.materials?.upholstery || {}),
+        ...(results.materials?.upholstery || {})
+      },
+      sheet: {
+        ...(entry.details.materials?.sheet || {}),
+        ...(results.materials?.sheet || {})
+      }
+    };
+    // Ensure `total` is populated and remove legacy `totalCost`
+    if (mergedMaterials.totalCost !== undefined) {
+      if (mergedMaterials.total === undefined) {
+        mergedMaterials.total = mergedMaterials.totalCost;
+      }
+      delete mergedMaterials.totalCost;
+    }
+
+    // Update the entry with the new, merged calculations
     const updatedEntry = await PriceSheet.findByIdAndUpdate(
       req.params.id,
       {
         cost: results.totals.cost,
         'details.labor': results.labor,
-        'details.materials': results.materials,
+        'details.materials': mergedMaterials,
         'details.cnc': results.cnc,
         'details.overhead': results.overhead,
         'details.components': results.components,

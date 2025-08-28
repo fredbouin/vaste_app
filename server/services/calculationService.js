@@ -324,7 +324,8 @@ const calculatePricing = (itemData, settings) => {
       sheet: {
         cost: sheetCost
       },
-      totalCost: totalMaterialsCost
+      // Expose a `total` property for overall material cost
+      total: totalMaterialsCost
     },
     cnc: {
       runtime: cncRuntime,
