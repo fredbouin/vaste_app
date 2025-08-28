@@ -67,10 +67,16 @@ router.post('/:id/sync', async (req, res) => {
     }
 
     // Prepare data for the calculation service
+    const woodEntries = Array.isArray(entry.details.materials?.wood)
+      ? entry.details.materials.wood
+      : Array.isArray(entry.details.materials?.wood?.entries)
+        ? entry.details.materials.wood.entries
+        : [];
+
     const itemData = {
       labor: {},
       materials: {
-        wood: Array.isArray(entry.details.materials?.wood) ? entry.details.materials.wood : [],
+        wood: woodEntries,
         hardware: Array.isArray(entry.details.materials?.hardware) ? entry.details.materials.hardware : [],
         finishing: entry.details.materials?.finishing || {},
         upholstery: entry.details.materials?.upholstery || {},
@@ -102,6 +108,11 @@ router.post('/:id/sync', async (req, res) => {
     const results = calculatePricing(itemData, currentSettings);
 
     // Merge recalculated material totals while preserving item arrays
+    const newWoodEntries = Array.isArray(results.materials?.wood?.entries) &&
+      results.materials.wood.entries.length
+        ? results.materials.wood.entries
+        : woodEntries;
+
     const mergedMaterials = {
       ...entry.details.materials,
       finishing: {
@@ -112,9 +123,7 @@ router.post('/:id/sync', async (req, res) => {
         ...(entry.details.materials?.upholstery || {}),
         ...(results.materials?.upholstery || {})
       },
-      wood: Array.isArray(results.materials?.wood?.entries)
-        ? results.materials.wood.entries
-        : (Array.isArray(entry.details.materials?.wood) ? entry.details.materials.wood : []),
+      wood: newWoodEntries,
       computedWood: results.materials?.wood
         ? {
             baseCost: results.materials.wood.baseCost,
