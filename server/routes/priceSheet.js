@@ -69,7 +69,13 @@ router.post('/:id/sync', async (req, res) => {
     // Prepare data for the calculation service
     const itemData = {
       labor: {},
-      materials: entry.details.materials,
+      materials: {
+        wood: Array.isArray(entry.details.materials?.wood) ? entry.details.materials.wood : [],
+        hardware: Array.isArray(entry.details.materials?.hardware) ? entry.details.materials.hardware : [],
+        finishing: entry.details.materials?.finishing || {},
+        upholstery: entry.details.materials?.upholstery || {},
+        sheet: Array.isArray(entry.details.materials?.sheet) ? entry.details.materials.sheet : []
+      },
       cnc: entry.details.cnc,
       details: {
         components: entry.details.components
@@ -95,31 +101,39 @@ router.post('/:id/sync', async (req, res) => {
     // Use the centralized calculation service
     const results = calculatePricing(itemData, currentSettings);
 
-    // Merge recalculated material totals into existing materials
+    // Merge recalculated material totals while preserving item arrays
     const mergedMaterials = {
-      ...(entry.details.materials || {}),
-      ...(results.materials || {}),
-      wood: {
-        ...(entry.details.materials?.wood || {}),
-        ...(results.materials?.wood || {})
-      },
+      ...entry.details.materials,
       finishing: {
         ...(entry.details.materials?.finishing || {}),
         ...(results.materials?.finishing || {})
-      },
-      hardware: {
-        ...(entry.details.materials?.hardware || {}),
-        ...(results.materials?.hardware || {})
       },
       upholstery: {
         ...(entry.details.materials?.upholstery || {}),
         ...(results.materials?.upholstery || {})
       },
-      sheet: {
-        ...(entry.details.materials?.sheet || {}),
-        ...(results.materials?.sheet || {})
-      }
+      wood: Array.isArray(results.materials?.wood?.entries)
+        ? results.materials.wood.entries
+        : (Array.isArray(entry.details.materials?.wood) ? entry.details.materials.wood : []),
+      computedWood: results.materials?.wood
+        ? {
+            baseCost: results.materials.wood.baseCost,
+            wasteCost: results.materials.wood.wasteCost,
+            totalCost: results.materials.wood.totalCost
+          }
+        : entry.details.materials?.computedWood,
+      hardware: Array.isArray(entry.details.materials?.hardware) ? entry.details.materials.hardware : [],
+      sheet: Array.isArray(entry.details.materials?.sheet) ? entry.details.materials.sheet : [],
+      total: results.materials?.total ?? entry.details.materials?.total
     };
+
+    if (results.materials?.hardware?.cost !== undefined) {
+      mergedMaterials.hardwareCost = results.materials.hardware.cost;
+    }
+    if (results.materials?.sheet?.cost !== undefined) {
+      mergedMaterials.sheetCost = results.materials.sheet.cost;
+    }
+
     // Ensure `total` is populated and remove legacy `totalCost`
     if (mergedMaterials.totalCost !== undefined) {
       if (mergedMaterials.total === undefined) {
