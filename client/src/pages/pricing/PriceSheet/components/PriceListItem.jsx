@@ -135,7 +135,12 @@ const PriceListItem = ({
 
   const wholesalePrice = calculatePrice(derivedCost, settings?.margins?.wholesale);
   const msrpPrice = calculatePrice(wholesalePrice, settings?.margins?.msrp);
-  const prices = { wholesale: wholesalePrice, msrp: msrpPrice };
+  // Include manual price in the prices object so downstream components can show it
+  const prices = {
+    wholesale: wholesalePrice,
+    msrp: msrpPrice,
+    custom: itemState.manualPrice ?? null
+  };
 
   const relevantSettings = settings
     ? {
