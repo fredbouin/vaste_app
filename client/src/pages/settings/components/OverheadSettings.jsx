@@ -1,7 +1,7 @@
 
 // src/pages/settings/components/OverheadSettings.jsx
-import React, { useState } from 'react';
-import { Save, Check, Pencil, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Save, Pencil, AlertCircle } from 'lucide-react';
 
 const OverheadSettings = ({ settings, onSettingsChange }) => {
   const [editingOverhead, setEditingOverhead] = useState({
@@ -26,7 +26,7 @@ const OverheadSettings = ({ settings, onSettingsChange }) => {
   };
 
   const handleSaveOverhead = () => {
-    const { monthlyOverhead, employees, monthlyProdHours, monthlyCNCHours } = editingOverhead.values;
+    const { monthlyOverhead, employees, monthlyProdHours } = editingOverhead.values;
     
     // Validate all required fields are filled
     if (!monthlyOverhead || !employees || !monthlyProdHours) {
@@ -226,7 +226,7 @@ const OverheadSettings = ({ settings, onSettingsChange }) => {
 export default OverheadSettings;
 
 // // src/pages/settings/components/OverheadSettings.jsx
-// import React, { useState } from 'react';
+// import { useState } from 'react';
 // import { Save, Check, Pencil, AlertCircle } from 'lucide-react';
 
 // const OverheadSettings = ({ settings, onSettingsChange }) => {

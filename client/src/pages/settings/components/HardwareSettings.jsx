@@ -1,5 +1,5 @@
 // src/pages/settings/components/HardwareSettings.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 
 const HardwareSettings = ({ settings, onSettingsChange }) => {

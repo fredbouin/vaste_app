@@ -2,7 +2,7 @@
 
 
 // src/pages/pricing/components/SummaryPanel.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
 import ConfirmationDialog from './ConfirmationDialog';
 import { priceSheetApi } from '../../../api/priceSheet';
@@ -268,7 +268,7 @@ const SummaryPanel = ({
 export default SummaryPanel;
 
 // // src/pages/pricing/components/SummaryPanel.jsx
-// import React, { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 // import { FileText } from 'lucide-react';
 // import ConfirmationDialog from './ConfirmationDialog';
 // import { priceSheetApi } from '../../../api/priceSheet';

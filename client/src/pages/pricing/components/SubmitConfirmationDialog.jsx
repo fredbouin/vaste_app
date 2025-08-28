@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 
 const ConfirmationDialog = ({ 
@@ -158,7 +158,7 @@ const ConfirmationDialog = ({
 
 export default ConfirmationDialog;
 
-//import React, { useState, useEffect } from 'react';
+//import { useState, useEffect } from 'react';
 // import { AlertCircle } from 'lucide-react';
 
 // const ConfirmationDialog = ({ 

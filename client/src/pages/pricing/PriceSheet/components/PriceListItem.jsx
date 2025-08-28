@@ -1,5 +1,5 @@
 //NEWCODE082725B
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, ChevronRight, Trash2, Pencil, Copy, RefreshCw, DollarSign } from 'lucide-react';
 import ExpandedDetails from './ExpandedDetails';
 import { priceSheetApi } from '../../../../api/priceSheet';
@@ -7,7 +7,6 @@ import { calculatePrice, calculateTotalCosts } from '../../../../utils/calculati
 import { toArray } from '../../../../utils/normalize';
 
 // ---------- helpers ----------
-const hasKeys = (obj) => obj && typeof obj === 'object' && Object.keys(obj).length > 0;
 const num = (v) => (v == null ? 0 : Number(v) || 0);
 
 const isMeaningfulMaterials = (m) => {
@@ -116,7 +115,6 @@ const PriceListItem = ({
   onEdit,
   onRemove,
   onDuplicate,
-  calculatePrice: calculatePriceFromProps,
   onSync
 }) => {
   const [itemState, setItemState] = useState(initialItem);

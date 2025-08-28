@@ -1,13 +1,11 @@
-const TimelineRow = ({ 
-  operation, 
-  startDay, 
+const TimelineRow = ({
+  operation,
+  startDay,
   duration,
   operationColor,
   assignedEmployees = [],
   onDragStart,
-  onSelect,
-  isDragging,
-  dragState
+  onSelect
 }) => {
   return (
     <div className="flex items-center mt-2">

@@ -1,8 +1,8 @@
 // src/pages/pricing/PriceSheet/components/ComponentsList.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PriceListItem from './PriceListItem';
 
-const ComponentsList = ({ components, settings, onEdit, onRemove, onDuplicate, calculatePrice, onSync }) => {
+const ComponentsList = ({ components, settings, onEdit, onRemove, onDuplicate, onSync }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
   if (components.length === 0) {
@@ -38,8 +38,7 @@ const ComponentsList = ({ components, settings, onEdit, onRemove, onDuplicate, c
             onEdit={onEdit}
             onRemove={onRemove}
             onDuplicate={onDuplicate}
-            calculatePrice={calculatePrice}
-          onSync={onSync}
+            onSync={onSync}
           />
         ))}
     </div>
@@ -50,7 +49,7 @@ export default ComponentsList;
 
 
 // // src/pages/pricing/PriceSheet/components/ComponentsList.jsx
-// import React, { useState } from 'react';
+// import { useState } from 'react';
 // import PriceListItem from './PriceListItem';
 
 // const ComponentsList = ({ components, settings, onEdit, onRemove, calculatePrice }) => {

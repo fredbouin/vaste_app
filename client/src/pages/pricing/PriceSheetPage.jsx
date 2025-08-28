@@ -1,5 +1,4 @@
 // src/pages/pricing/PriceSheetPage.jsx
-import React from 'react';
 import PriceSheet from './PriceSheet/PriceSheet';
 
 const PriceSheetPage = () => {

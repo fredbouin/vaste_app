@@ -1,5 +1,5 @@
 // src/pages/pricing/features/calculator/components/FurniturePricingCalculator.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { priceSheetApi } from '../../../../../api/priceSheet';
 import PiecePanel from '../../../components/PiecePanel';
 import LaborPanel from '../../../components/LaborPanel';

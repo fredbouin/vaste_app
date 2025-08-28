@@ -1,4 +1,3 @@
-import React from 'react';
 import { calculateTotalCosts } from '../../../../utils/calculationUtils';
 import { toArray } from '../../../../utils/normalize';
 

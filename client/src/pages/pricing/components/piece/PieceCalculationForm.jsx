@@ -1,8 +1,8 @@
 //NEWCODE082625
 
 
-import React, { useState, useEffect } from 'react';
-import { Plus, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import ModelInput from './ModelInput';
 
 const PieceCalculationForm = ({ 
@@ -11,9 +11,6 @@ const PieceCalculationForm = ({
   onChange, 
   onModelChange,
   savedComponents, 
-  onComponentSelect,
-  onComponentEdit,
-  onComponentDelete,
   setActivePanel,
   isCustom // ADD THIS LINE
 }) => {
@@ -199,7 +196,7 @@ const getComponentMaterialsCost = (component) => {
 
 export default PieceCalculationForm;
 
-// import React, { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 // import { Plus, X } from 'lucide-react';
 // import ModelInput from './ModelInput';
 

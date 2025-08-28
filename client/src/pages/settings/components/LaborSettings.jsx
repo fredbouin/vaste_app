@@ -1,6 +1,6 @@
 // src/pages/settings/components/LaborSettings.jsx
-import React, { useState } from 'react';
-import { Save, Check, Pencil } from 'lucide-react';
+import { useState } from 'react';
+import { Save, Pencil } from 'lucide-react';
 
 const LaborSettings = ({ settings, onSettingsChange }) => {
   const [editingRate, setEditingRate] = useState({

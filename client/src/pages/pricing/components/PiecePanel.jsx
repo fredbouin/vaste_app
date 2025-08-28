@@ -1,7 +1,7 @@
 //NEWCODE082625
 
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { COMPONENTS_STORAGE_KEY } from '../features/calculator/constants/calculatorConstants';
 import ModeSelector from './piece/ModeSelector';
 import ComponentForm from './piece/ComponentForm';
@@ -309,7 +309,7 @@ const PiecePanel = ({ data, onChange, setActivePanel }) => {
 export default PiecePanel;
 
 // // src/pages/pricing/components/PiecePanel.jsx
-// import React, { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 // import { COMPONENTS_STORAGE_KEY } from '../features/calculator/constants/calculatorConstants';
 // import ModeSelector from './piece/ModeSelector';
 // import ComponentForm from './piece/ComponentForm';

@@ -2,7 +2,6 @@
 
 
 // src/pages/pricing/components/piece/ModeSelector.jsx
-import React from 'react';
 
 const ModeSelector = ({ isComponent, onModeChange, isCustom }) => (
   <div className="space-y-2">
@@ -41,8 +40,7 @@ const ModeSelector = ({ isComponent, onModeChange, isCustom }) => (
 export default ModeSelector;
 
 // // src/pages/pricing/components/piece/ModeSelector.jsx
-// import React from 'react';
-
+// 
 // const ModeSelector = ({ isComponent, onModeChange }) => (
 //   <div className="space-y-2">
 //     <div className="flex space-x-4">

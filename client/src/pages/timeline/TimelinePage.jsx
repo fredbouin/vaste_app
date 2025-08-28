@@ -1,5 +1,4 @@
 // src/pages/timeline/TimelinePage.jsx
-import React from 'react';
 import ProjectList from './features/projectManagement/components/ProjectList';
 import TimelineForm from './features/projectManagement/components/TimelineForm';
 import useModelData from './features/projectManagement/hooks/useModelData';

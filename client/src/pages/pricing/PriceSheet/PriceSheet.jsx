@@ -1,13 +1,12 @@
 //NEWCODE082725B
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import PriceListTabs from './components/PriceListTabs';
 import PiecesList from './components/PiecesList';
 import ComponentsList from './components/ComponentsList';
 
 // ---------- helpers mirrored here ----------
-const hasKeys = (obj) => obj && typeof obj === 'object' && Object.keys(obj).length > 0;
 const num = (v) => (v == null ? 0 : Number(v) || 0);
 
 const isMeaningfulMaterials = (m) => {
@@ -239,12 +238,6 @@ const PriceSheet = () => {
     handleEdit(duplicatedItem);
   };
 
-  const calculatePrice = (cost, marginPercent) => {
-    if (!marginPercent) return cost;
-    const margin = marginPercent / 100;
-    const markup = 1 / (1 - margin);
-    return cost * markup;
-  };
 
   if (loading) {
     return (
@@ -275,32 +268,29 @@ const PriceSheet = () => {
             <PiecesList
               pieces={priceData.pieces}
               settings={settings}
-              onEdit={handleEdit}
-              onRemove={handleRemoveItem}
-              onDuplicate={handleDuplicate}
-              onSync={handleSync}
-              calculatePrice={calculatePrice}
-            />
+            onEdit={handleEdit}
+            onRemove={handleRemoveItem}
+            onDuplicate={handleDuplicate}
+            onSync={handleSync}
+          />
           ) : activeTab === 'components' ? (
             <ComponentsList
               components={priceData.components}
               settings={settings}
-              onEdit={handleEdit}
-              onRemove={handleRemoveItem}
-              onDuplicate={handleDuplicate}
-              onSync={handleSync}
-              calculatePrice={calculatePrice}
-            />
+            onEdit={handleEdit}
+            onRemove={handleRemoveItem}
+            onDuplicate={handleDuplicate}
+            onSync={handleSync}
+          />
           ) : (
             <PiecesList
-              pieces={priceData.custom}
-              settings={settings}
-              onEdit={handleEdit}
-              onRemove={(id, isComponent, isCustom) => handleRemoveItem(id, isComponent, true)}
-              onDuplicate={handleDuplicate}
-              onSync={handleSync}
-              calculatePrice={calculatePrice}
-            />
+            pieces={priceData.custom}
+            settings={settings}
+            onEdit={handleEdit}
+            onRemove={(id, isComponent) => handleRemoveItem(id, isComponent, true)}
+            onDuplicate={handleDuplicate}
+            onSync={handleSync}
+          />
           )}
         </div>
       </div>

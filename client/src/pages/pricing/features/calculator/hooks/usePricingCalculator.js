@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AUTOSAVE_KEY, COMPONENTS_STORAGE_KEY, PRICE_SHEET_KEY } from '../constants/calculatorConstants';
+import { AUTOSAVE_KEY, PRICE_SHEET_KEY } from '../constants/calculatorConstants';
 
 const AUTOSAVE_DELAY = 1000;
 
@@ -56,7 +56,6 @@ const usePricingCalculator = () => {
     const loadSettings = () => {
     const savedSettings = localStorage.getItem('calculatorSettings');
       
-      console.log('Raw saved data:', savedData);
 
       if (savedSettings) {
         const parsedSettings = JSON.parse(savedSettings);

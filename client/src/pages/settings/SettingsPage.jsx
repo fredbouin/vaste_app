@@ -1,5 +1,5 @@
 // src/pages/settings/SettingsPage.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import WoodSettings from './components/WoodSettings';
 import HardwareSettings from './components/HardwareSettings';
 import FinishingSettings from './components/FinishingSettings';

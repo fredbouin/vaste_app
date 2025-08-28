@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Fragment } from 'react';
 import SidePanel from './SidePanel';
 import TimelineRow from './TimelineRow';
 import ChartHeader from './ChartHeader';
@@ -224,7 +224,7 @@ const GanttChart = ({ projects, onUpdateProject, onDeleteProject }) => {
         {/* Timeline content */}
         <div className="px-4 pb-4">
           {projects.map((project, projectIndex) => (
-            <React.Fragment key={projectIndex}>
+            <Fragment key={projectIndex}>
               <div className="mt-6 mb-2">
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
@@ -299,7 +299,7 @@ const GanttChart = ({ projects, onUpdateProject, onDeleteProject }) => {
                   />
                 );
               })}
-            </React.Fragment>
+            </Fragment>
           ))}
           <ChartLegend operationColors={OPERATION_COLORS} />
         </div>
@@ -355,7 +355,7 @@ export default GanttChart;
 
 
 // // src/pages/timeline/features/gantt/components/GanttChart.jsx
-// import React, { useState, useRef, useEffect } from 'react';
+// import { useState, useRef, useEffect } from 'react';
 // import SidePanel from './SidePanel';
 // import TimelineRow from './TimelineRow';
 // import ChartHeader from './ChartHeader';

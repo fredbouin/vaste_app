@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Pencil, X, AlertCircle } from 'lucide-react';
 
 const CNCPanel = ({ cnc, onCNCChange, setActivePanel }) => {
@@ -100,7 +100,7 @@ const CNCPanel = ({ cnc, onCNCChange, setActivePanel }) => {
         <div className="flex items-start space-x-2 text-sm text-yellow-700 bg-yellow-50 p-3 rounded-md">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <p>
-            You're overriding the default rate for this job. This won't affect the default rate in settings.
+            You&apos;re overriding the default rate for this job. This won&apos;t affect the default rate in settings.
           </p>
         </div>
       )}

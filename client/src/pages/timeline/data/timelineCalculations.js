@@ -143,12 +143,11 @@ export const recalculateAllProjectsPreservingPositions = (projects, modelTimes =
   let recalculatedProjects = [];
   
   projects.forEach((project) => {
-    const result = calculateTimelinePreservingPositions(
-      project.modelNumber, 
-      project.quantity, 
+    const result = calculateTimeline(
+      project.modelNumber,
+      project.quantity,
       recalculatedProjects,
       project.assignments,
-      project.timeline,
       modelTimes
     );
     
