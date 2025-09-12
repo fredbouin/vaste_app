@@ -1,7 +1,7 @@
 //NEWCODE082625
 
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { COMPONENTS_STORAGE_KEY } from '../features/calculator/constants/calculatorConstants';
 import ModeSelector from './piece/ModeSelector';
 import ComponentForm from './piece/ComponentForm';
@@ -14,6 +14,7 @@ const PiecePanel = ({ data, onChange, setActivePanel }) => {
   const [savedComponents, setSavedComponents] = useState([]);
   const [loadingComponents, setLoadingComponents] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const modeSnapshots = useRef({ piece: null, component: null, custom: null });
 
   useEffect(() => {
     if (skipEffect) {
@@ -136,6 +137,10 @@ const PiecePanel = ({ data, onChange, setActivePanel }) => {
   };
 
   const handleModeChange = (mode) => {
+    // Save snapshot of current mode before switching
+    const currentMode = data.isComponent ? 'component' : data.isCustom ? 'custom' : 'piece';
+    modeSnapshots.current[currentMode] = JSON.parse(JSON.stringify(data));
+
     // Retrieve saved settings so we can use default rates
     const savedSettings = JSON.parse(localStorage.getItem('calculatorSettings') || '{}');
     const defaultLabor = savedSettings.labor || {
@@ -146,7 +151,7 @@ const PiecePanel = ({ data, onChange, setActivePanel }) => {
       upholstery: { rate: '' }
     };
     const defaultCNC = savedSettings.cnc || { rate: '' };
-    
+
     const baseUpdates = {
       editingComponentId: null,
       componentName: '',
@@ -184,21 +189,16 @@ const PiecePanel = ({ data, onChange, setActivePanel }) => {
       }
     };
 
-    if (mode === 'component') {
-      onChange('isComponent', true);
-      onChange('isCustom', false); // ADD THIS LINE
-      Object.entries(baseUpdates).forEach(([field, value]) => {
+    onChange('isComponent', mode === 'component');
+    onChange('isCustom', mode === 'custom');
+
+    const snapshot = modeSnapshots.current[mode];
+    if (snapshot) {
+      const { isComponent, isCustom, ...rest } = snapshot;
+      Object.entries(rest).forEach(([field, value]) => {
         onChange(field, value);
       });
-    } else if (mode === 'custom') {
-      onChange('isComponent', false);
-      onChange('isCustom', true); // ADD THIS LINE
-      Object.entries(baseUpdates).forEach(([field, value]) => {
-        onChange(field, value);
-      });
-    } else { // 'piece' mode
-      onChange('isComponent', false);
-      onChange('isCustom', false); // ADD THIS LINE
+    } else {
       Object.entries(baseUpdates).forEach(([field, value]) => {
         onChange(field, value);
       });
