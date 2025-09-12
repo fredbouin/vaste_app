@@ -24,7 +24,8 @@ export const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
   // ----- Materials -----
   const prevMaterials = prevDetails.materials || {};
   const nextMaterials = nextDetails.materials;
-  if (!isMeaningfulMaterials(nextMaterials)) {
+  const hasExplicitNull = Object.values(nextMaterials || {}).some(v => v === null);
+  if (!isMeaningfulMaterials(nextMaterials) && !hasExplicitNull) {
     merged.materials = prevMaterials;
   } else {
     const mat = { ...prevMaterials };
