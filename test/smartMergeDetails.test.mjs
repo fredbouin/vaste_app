@@ -109,3 +109,21 @@ test('smartMergeDetails keeps existing wood when next has empty wood array', () 
   assert.deepStrictEqual(merged.materials.wood, prev.materials.wood);
   assert.deepStrictEqual(merged.materials.hardware, next.materials.hardware);
 });
+
+test('smartMergeDetails clears hardware when null while leaving wood intact', () => {
+  const prev = {
+    materials: {
+      wood: [{ species: 'oak', totalCost: 100 }],
+      hardware: [{ name: 'hinge', cost: 5 }],
+    },
+  };
+  const next = {
+    materials: {
+      wood: [],
+      hardware: null,
+    },
+  };
+  const merged = smartMergeDetails(prev, next);
+  assert.deepStrictEqual(merged.materials.wood, prev.materials.wood);
+  assert.strictEqual(merged.materials.hardware, null);
+});

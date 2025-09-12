@@ -12,6 +12,9 @@ export const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
   // ----- Materials -----
   const prevMaterials = prevDetails.materials || {};
   const nextMaterials = nextDetails.materials;
+ codex/add-test-for-wood-and-hardware-state
+  const hasExplicitNull = Object.values(nextMaterials || {}).some(v => v === null);
+  if (!isMeaningfulMaterials(nextMaterials) && !hasExplicitNull) {
   if (nextMaterials === undefined) {
     merged.materials = prevMaterials;
   } else {
