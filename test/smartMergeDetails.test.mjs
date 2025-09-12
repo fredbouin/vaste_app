@@ -85,9 +85,27 @@ test('smartMergeDetails preserves existing data on partial updates', () => {
 });
 
 // ensure non-meaningful materials update keeps previous
- test('smartMergeDetails ignores empty material updates', () => {
+test('smartMergeDetails ignores empty material updates', () => {
   const prev = { materials: { wood: [{ species: 'oak', totalCost: 100 }] } };
   const next = { materials: {} };
   const merged = smartMergeDetails(prev, next);
   assert.deepStrictEqual(merged.materials, prev.materials);
+});
+
+test('smartMergeDetails keeps existing wood when next has empty wood array', () => {
+  const prev = {
+    materials: {
+      wood: [{ species: 'oak', totalCost: 100 }],
+      hardware: [{ name: 'hinge', cost: 5 }],
+    },
+  };
+  const next = {
+    materials: {
+      wood: [],
+      hardware: [{ name: 'screw', cost: 2 }],
+    },
+  };
+  const merged = smartMergeDetails(prev, next);
+  assert.deepStrictEqual(merged.materials.wood, prev.materials.wood);
+  assert.deepStrictEqual(merged.materials.hardware, next.materials.hardware);
 });

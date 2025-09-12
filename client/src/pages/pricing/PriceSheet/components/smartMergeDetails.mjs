@@ -31,10 +31,17 @@ export const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
     Object.keys(nextMaterials || {}).forEach(key => {
       const nextVal = nextMaterials[key];
       if (nextVal === undefined) return;
-      if (Array.isArray(nextVal)) {
-        mat[key] = nextVal.length ? nextVal : [];
-      } else if (typeof nextVal === 'object' && nextVal !== null) {
-        mat[key] = { ...prevMaterials[key], ...nextVal };
+      if (nextVal === null) {
+        // Explicit clear
+        mat[key] = null;
+      } else if (Array.isArray(nextVal)) {
+        // Ignore empty arrays to preserve previous data
+        if (nextVal.length > 0) mat[key] = nextVal;
+      } else if (typeof nextVal === 'object') {
+        // Ignore empty objects
+        if (Object.keys(nextVal).length > 0) {
+          mat[key] = { ...prevMaterials[key], ...nextVal };
+        }
       } else {
         mat[key] = nextVal;
       }
