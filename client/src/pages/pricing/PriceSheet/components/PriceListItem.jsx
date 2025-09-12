@@ -5,52 +5,9 @@ import ExpandedDetails from './ExpandedDetails';
 import { priceSheetApi } from '../../../../api/priceSheet';
 import { calculatePrice, calculateTotalCosts } from '../../../../utils/calculationUtils';
 import { toArray } from '../../../../utils/normalize';
+import { smartMergeDetails, num } from './smartMergeDetails.mjs';
 
 // ---------- helpers ----------
-const num = (v) => (v == null ? 0 : Number(v) || 0);
-
-const isMeaningfulMaterials = (m) => {
-  if (!m || typeof m !== 'object') return false;
-  if (num(m.totalCost) > 0) return true;
-  // If any category looks non-empty with numeric signals, treat as meaningful
-  const woodOk = Array.isArray(m.wood) && m.wood.length > 0 && m.wood.some(w => num(w?.totalCost) > 0);
-  const sheetOk = Array.isArray(m.sheet) && m.sheet.some(s => num(s?.cost) > 0);
-  const hwOk = Array.isArray(m.hardware) && m.hardware.some(h => num(h?.pricePerPack) > 0 || num(h?.cost) > 0);
-  const finOk = (m.finishing && (num(m.finishing.cost) > 0 || Array.isArray(m.finishing.items)));
-  const uphOk = (m.upholstery && (num(m.upholstery.cost) > 0 || Array.isArray(m.upholstery.items)));
-  const compWood = m.computedWood && (num(m.computedWood.totalCost) > 0 || num(m.computedWood.baseCost) > 0);
-  return woodOk || sheetOk || hwOk || finOk || uphOk || compWood;
-};
-
-const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
-  // Start shallow
-  const merged = { ...prevDetails, ...nextDetails };
-
-  // Materials: keep previous unless the server actually provided meaningful data
-  if (!isMeaningfulMaterials(nextDetails.materials)) {
-    merged.materials = prevDetails.materials;
-  }
-
-  // CNC: if server has zeroed runtime/cost, keep previous runtime/cost
-  if (nextDetails.cnc && prevDetails.cnc) {
-    const nextRuntime = num(nextDetails.cnc.runtime);
-    const nextCost = num(nextDetails.cnc.cost);
-    if (nextRuntime === 0 && nextCost === 0) {
-      merged.cnc = { ...prevDetails.cnc, rate: nextDetails.cnc.rate ?? prevDetails.cnc.rate };
-    }
-  }
-
-  // Components: backend sometimes returns an object or empty — keep previous array when that happens
-  if (!Array.isArray(nextDetails.components) || nextDetails.components.length === 0) {
-    merged.components = prevDetails.components;
-  }
-
-  // Labor/Overhead: usually OK to accept server’s recalculated breakdown & rate/hours
-  // (If you want to be stricter, add similar guards here.)
-
-  return merged;
-};
-
 const deepMergePriceItem = (prev, next) => {
   const merged = { ...prev, ...next };
   merged.details = smartMergeDetails(prev?.details, next?.details);
