@@ -6,25 +6,13 @@ export const toArray = (value) => {
 
 export const num = (v) => (v == null ? 0 : Number(v) || 0);
 
-export const isMeaningfulMaterials = (m) => {
-  if (!m || typeof m !== 'object') return false;
-  if (num(m.totalCost) > 0) return true;
-  const woodOk = Array.isArray(m.wood) && m.wood.length > 0 && m.wood.some(w => num(w?.totalCost) > 0);
-  const sheetOk = Array.isArray(m.sheet) && m.sheet.some(s => num(s?.cost) > 0);
-  const hwOk = Array.isArray(m.hardware) && m.hardware.some(h => num(h?.pricePerPack) > 0 || num(h?.cost) > 0);
-  const finOk = m.finishing && (num(m.finishing.cost) > 0 || Array.isArray(m.finishing.items));
-  const uphOk = m.upholstery && (num(m.upholstery.cost) > 0 || Array.isArray(m.upholstery.items));
-  const compWood = m.computedWood && (num(m.computedWood.totalCost) > 0 || num(m.computedWood.baseCost) > 0);
-  return woodOk || sheetOk || hwOk || finOk || uphOk || compWood;
-};
-
 export const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
   const merged = { ...prevDetails, ...nextDetails };
 
   // ----- Materials -----
   const prevMaterials = prevDetails.materials || {};
   const nextMaterials = nextDetails.materials;
-  if (!isMeaningfulMaterials(nextMaterials)) {
+  if (nextMaterials === undefined) {
     merged.materials = prevMaterials;
   } else {
     const mat = { ...prevMaterials };
