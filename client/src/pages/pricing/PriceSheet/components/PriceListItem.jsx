@@ -89,7 +89,7 @@ const PriceListItem = ({
   const derivedCost = useMemo(() => computeDerivedCost(itemState, settings), [itemState, settings]);
 
   const wholesalePrice = calculatePrice(derivedCost, settings?.margins?.wholesale);
-  const msrpPrice = calculatePrice(wholesalePrice, settings?.margins?.msrp);
+  const msrpPrice = calculatePrice(derivedCost, settings?.margins?.msrp);
   // Include manual price in the prices object so downstream components can show it
   const prices = {
     wholesale: wholesalePrice,
