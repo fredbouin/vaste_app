@@ -6,20 +6,42 @@ export const toArray = (value) => {
 
 export const num = (v) => (v == null ? 0 : Number(v) || 0);
 
+const isMeaningfulMaterials = (m) => {
+  if (!m || typeof m !== 'object') return false;
+  if (num(m.totalCost) > 0) return true;
+
+  const woodOk = Array.isArray(m.wood)
+    && m.wood.length > 0
+    && m.wood.some((w) => num(w?.totalCost) > 0);
+  const sheetOk = Array.isArray(m.sheet)
+    && m.sheet.some((s) => num(s?.cost) > 0);
+  const hwOk = Array.isArray(m.hardware)
+    && m.hardware.some((h) => num(h?.pricePerPack) > 0 || num(h?.cost) > 0);
+  const finOk = m.finishing
+    && (num(m.finishing.cost) > 0 || Array.isArray(m.finishing.items));
+  const uphOk = m.upholstery
+    && (num(m.upholstery.cost) > 0 || Array.isArray(m.upholstery.items));
+  const compWood = m.computedWood
+    && (num(m.computedWood.totalCost) > 0 || num(m.computedWood.baseCost) > 0);
+
+  return woodOk || sheetOk || hwOk || finOk || uphOk || compWood;
+};
+
 export const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
   const merged = { ...prevDetails, ...nextDetails };
 
   // ----- Materials -----
   const prevMaterials = prevDetails.materials || {};
   const nextMaterials = nextDetails.materials;
- codex/add-test-for-wood-and-hardware-state
-  const hasExplicitNull = Object.values(nextMaterials || {}).some(v => v === null);
+  const hasExplicitNull = Object.values(nextMaterials || {}).some((v) => v === null);
+
   if (!isMeaningfulMaterials(nextMaterials) && !hasExplicitNull) {
-  if (nextMaterials === undefined) {
+    merged.materials = prevMaterials;
+  } else if (nextMaterials === undefined) {
     merged.materials = prevMaterials;
   } else {
     const mat = { ...prevMaterials };
-    Object.keys(nextMaterials || {}).forEach(key => {
+    Object.keys(nextMaterials || {}).forEach((key) => {
       const nextVal = nextMaterials[key];
       if (nextVal === undefined) return;
       if (nextVal === null) {
@@ -50,8 +72,8 @@ export const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
     const prevBreakdown = toArray(prevLabor.breakdown);
     if (nextLabor.breakdown !== undefined) {
       const map = new Map();
-      prevBreakdown.forEach(e => map.set(e.type, { ...e }));
-      toArray(nextLabor.breakdown).forEach(e => {
+      prevBreakdown.forEach((e) => map.set(e.type, { ...e }));
+      toArray(nextLabor.breakdown).forEach((e) => {
         const existing = map.get(e.type) || {};
         const mergedEntry = { ...existing, ...e };
         if (num(e.rate) === 0) mergedEntry.rate = existing.rate;
@@ -101,13 +123,13 @@ export const smartMergeDetails = (prevDetails = {}, nextDetails = {}) => {
   if (nextComponents === undefined) {
     merged.components = prevComponents;
   } else if (Array.isArray(nextComponents)) {
-    const mergedList = nextComponents.map(nextComp => {
+    const mergedList = nextComponents.map((nextComp) => {
       const id = nextComp.id ?? nextComp._id;
-      const prevComp = prevComponents.find(c => (c.id ?? c._id) === id) || {};
+      const prevComp = prevComponents.find((c) => (c.id ?? c._id) === id) || {};
       return { ...prevComp, ...nextComp };
     });
-    const ids = new Set(mergedList.map(c => c.id ?? c._id));
-    prevComponents.forEach(c => {
+    const ids = new Set(mergedList.map((c) => c.id ?? c._id));
+    prevComponents.forEach((c) => {
       const id = c.id ?? c._id;
       if (!ids.has(id)) mergedList.push(c);
     });
