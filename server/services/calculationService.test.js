@@ -27,7 +27,11 @@ test('pricing sync retains hardware costs without settings ids', () => {
 });
 
 
+<<<<<<< codex/fix-pricing-margin-calculations-a46pwe
 test('pricing applies MSRP margin on top of wholesale price', () => {
+=======
+test('pricing applies wholesale and MSRP margins independently from cost', () => {
+>>>>>>> master
   const itemData = {
     labor: {
       assembly: { hours: 1, rate: 100 }
@@ -44,5 +48,9 @@ test('pricing applies MSRP margin on top of wholesale price', () => {
 
   assert.strictEqual(result.totals.cost, 100);
   assert.ok(Math.abs(result.totals.wholesale - 111.1111111111) < 0.0001);
+<<<<<<< codex/fix-pricing-margin-calculations-a46pwe
   assert.ok(Math.abs(result.totals.msrp - 222.2222222222) < 0.0001);
+=======
+  assert.strictEqual(result.totals.msrp, 200);
+>>>>>>> master
 });
