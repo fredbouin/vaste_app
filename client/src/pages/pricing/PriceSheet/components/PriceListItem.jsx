@@ -85,11 +85,12 @@ const PriceListItem = ({
     setManualPrice(initialItem.manualPrice || '');
   }, [initialItem]);
 
-  // Compute cost from details + settings so UI isn't dependent on server's "cost" field
+  // Keep displayed pricing anchored to the saved item cost; only fallback to derived cost if missing
   const derivedCost = useMemo(() => computeDerivedCost(itemState, settings), [itemState, settings]);
+  const effectiveCost = Number(itemState?.cost) > 0 ? Number(itemState.cost) : derivedCost;
 
-  const wholesalePrice = calculatePrice(derivedCost, settings?.margins?.wholesale);
-  const msrpPrice = calculatePrice(wholesalePrice, settings?.margins?.msrp);
+  const wholesalePrice = calculatePrice(effectiveCost, settings?.margins?.wholesale);
+  const msrpPrice = calculatePrice(effectiveCost, settings?.margins?.msrp);
   // Include manual price in the prices object so downstream components can show it
   const prices = {
     wholesale: wholesalePrice,
@@ -143,12 +144,9 @@ const PriceListItem = ({
       // Smart deep-merge (keeps materials/components if server returns empty/zeroed)
       const mergedUpdated = deepMergePriceItem(itemState, withManualPreserved);
 
-      // Override displayed cost with locally derived cost so price doesn't drop
-      const recalc = computeDerivedCost(mergedUpdated, settings);
-      const finalItem = { ...mergedUpdated, cost: recalc };
-
-      setItemState(finalItem);
-      if (onSync) onSync(finalItem);
+      // Keep server-synced cost as source of truth so top row and summary stay aligned
+      setItemState(mergedUpdated);
+      if (onSync) onSync(mergedUpdated);
     } catch (error) {
       console.error('Sync failed:', error);
       setSyncError(error.message || 'Failed to sync');
@@ -228,7 +226,7 @@ const PriceListItem = ({
           {/* Price information */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-right">
             <div className="text-gray-500 text-sm">Cost:</div>
-            <div className="font-medium">${derivedCost.toFixed(2)}</div>
+            <div className="font-medium">${effectiveCost.toFixed(2)}</div>
 
             <div className="text-gray-500 text-sm">Wholesale:</div>
             <div className="font-medium">${wholesalePrice?.toFixed(2) || '0.00'}</div>
@@ -370,6 +368,7 @@ const PriceListItem = ({
           isComponent={isComponent}
           settings={settings}
           prices={prices}
+          baseCost={effectiveCost}
         />
       )}
     </div>
