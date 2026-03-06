@@ -144,12 +144,9 @@ const PriceListItem = ({
       // Smart deep-merge (keeps materials/components if server returns empty/zeroed)
       const mergedUpdated = deepMergePriceItem(itemState, withManualPreserved);
 
-      // Override displayed cost with locally derived cost so price doesn't drop
-      const recalc = computeDerivedCost(mergedUpdated, settings);
-      const finalItem = { ...mergedUpdated, cost: recalc };
-
-      setItemState(finalItem);
-      if (onSync) onSync(finalItem);
+      // Keep server-synced cost as source of truth so top row and summary stay aligned
+      setItemState(mergedUpdated);
+      if (onSync) onSync(mergedUpdated);
     } catch (error) {
       console.error('Sync failed:', error);
       setSyncError(error.message || 'Failed to sync');
@@ -371,6 +368,7 @@ const PriceListItem = ({
           isComponent={isComponent}
           settings={settings}
           prices={prices}
+          baseCost={effectiveCost}
         />
       )}
     </div>
