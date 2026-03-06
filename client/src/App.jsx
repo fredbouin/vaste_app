@@ -11,7 +11,7 @@ import './styles/main.css';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100 flex flex-col">
+      <div className="min-h-screen bg-black flex flex-col">
         <main className="flex-grow">
           <MainLayout>
             <Routes>
