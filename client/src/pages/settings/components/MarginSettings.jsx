@@ -129,12 +129,25 @@ const MarginSettings = ({ settings, onSettingsChange }) => {
           <h4 className="text-sm font-medium text-gray-700 mb-2">Example:</h4>
           <div className="space-y-2 text-sm text-gray-600">
             <p>For a $100 cost item:</p>
-            {settings.margins.wholesale && (
-              <p>• Wholesale price: ${(100 * calculateMarkup(settings.margins.wholesale)).toFixed(2)}</p>
-            )}
-            {settings.margins.msrp && (
-              <p>• MSRP: ${(100 * calculateMarkup(settings.margins.msrp)).toFixed(2)}</p>
-            )}
+            {(() => {
+              const wholesaleBase = 100;
+              const wholesalePrice = settings.margins.wholesale
+                ? wholesaleBase * calculateMarkup(settings.margins.wholesale)
+                : wholesaleBase;
+
+              return (
+                <>
+                  {settings.margins.wholesale && (
+                    <p>• Wholesale price: ${wholesalePrice.toFixed(2)}</p>
+                  )}
+                  {settings.margins.msrp && (
+                    <p>
+                      • MSRP (from wholesale): ${(wholesalePrice * calculateMarkup(settings.margins.msrp)).toFixed(2)}
+                    </p>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

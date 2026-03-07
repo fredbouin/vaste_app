@@ -1,7 +1,7 @@
 import { calculateTotalCosts } from '../../../../utils/calculationUtils';
 import { toArray } from '../../../../utils/normalize';
 
-const ExpandedDetails = ({ item, isComponent, settings, prices }) => {
+const ExpandedDetails = ({ item, isComponent, settings, prices, baseCost }) => {
   // Normalize potentially non-array shapes
   const breakdown = toArray(item?.details?.labor?.breakdown);
   const regularLabor = breakdown.filter(e => e?.type !== 'Labor Surcharge');
@@ -69,8 +69,8 @@ const ExpandedDetails = ({ item, isComponent, settings, prices }) => {
     return sum + (cost * quantity);
   }, 0);
 
-  // Calculate total cost
-  const totalCost = (computedLaborCost || 0) + 
+  // Calculate total cost (keep in sync with top-row displayed cost when provided)
+  const computedTotalCost = (computedLaborCost || 0) + 
     (woodTotalCost || 0) + 
     (sheetCost || 0) + 
     (upholsteryCost || 0) + 
@@ -79,6 +79,7 @@ const ExpandedDetails = ({ item, isComponent, settings, prices }) => {
     (cncCost || 0) + 
     (overheadCost || 0) + 
     (componentsCost || 0);
+  const totalCost = Number(baseCost) > 0 ? Number(baseCost) : computedTotalCost;
 
   // Calculate the breakdown percentages
   const costs = [
