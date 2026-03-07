@@ -1,7 +1,7 @@
 //NEWCODE082725B
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { priceSheetApi } from '../../../api/priceSheet';
 import PriceListTabs from './components/PriceListTabs';
 import PiecesList from './components/PiecesList';
 import ComponentsList from './components/ComponentsList';
@@ -64,8 +64,6 @@ const PriceSheet = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -73,16 +71,15 @@ const PriceSheet = () => {
 
         const savedSettings = localStorage.getItem('calculatorSettings');
         if (savedSettings) {
-          const parsedSettings = JSON.parse(savedSettings);
-          setSettings(parsedSettings);
+          setSettings(JSON.parse(savedSettings));
         }
 
-        const response = await axios.get(`${API_BASE_URL}/api/price-sheet`);
+        const data = await priceSheetApi.getAll();
 
         setPriceData({
-          pieces: response.data.filter(item => !item.isComponent && !item.isCustom),
-          components: response.data.filter(item => item.isComponent),
-          custom: response.data.filter(item => item.isCustom)
+          pieces: data.filter(item => !item.isComponent && !item.isCustom),
+          components: data.filter(item => item.isComponent),
+          custom: data.filter(item => item.isCustom)
         });
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -93,7 +90,7 @@ const PriceSheet = () => {
     };
 
     fetchData();
-  }, [API_BASE_URL]);
+  }, []);
 
   const handleRemoveItem = async (id, isComponent, isCustom) => {
     if (!window.confirm('Are you sure you want to remove this item?')) {
@@ -101,7 +98,7 @@ const PriceSheet = () => {
     }
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/price-sheet/${id}`);
+      await priceSheetApi.delete(id);
 
       const key = isComponent ? 'components' : (isCustom ? 'custom' : 'pieces');
       setPriceData(prev => ({

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AUTOSAVE_KEY, PRICE_SHEET_KEY } from '../constants/calculatorConstants';
 
 const AUTOSAVE_DELAY = 1000;
@@ -47,7 +47,7 @@ const getInitialData = () => {
 const usePricingCalculator = () => {
   const [activePanel, setActivePanel] = useState('piece');
   const [settings, setSettings] = useState(null);
-  const [saveTimeout, setSaveTimeout] = useState(null);
+  const saveTimeoutRef = useRef(null);
   const [data, setData] = useState(getInitialData);
   const [initialized, setInitialized] = useState(false);
 
@@ -102,15 +102,13 @@ const usePricingCalculator = () => {
   }, [initialized]);
 
   const autoSave = (newData) => {
-    if (saveTimeout) {
-      clearTimeout(saveTimeout);
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
 
-    const timeoutId = setTimeout(() => {
+    saveTimeoutRef.current = setTimeout(() => {
       localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(newData));
     }, AUTOSAVE_DELAY);
-
-    setSaveTimeout(timeoutId);
   };
 
   const handlePieceDataChange = (field, value) => {
@@ -223,11 +221,11 @@ const usePricingCalculator = () => {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (saveTimeout) {
-        clearTimeout(saveTimeout);
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [saveTimeout]);
+  }, []);
 
   return {
     data,

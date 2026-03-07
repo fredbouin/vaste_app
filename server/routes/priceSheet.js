@@ -89,17 +89,23 @@ router.post('/:id/sync', async (req, res) => {
     };
     
     // Reconstruct the labor data in the format the calculation service expects
+    const LABOR_TYPE_TO_KEY = {
+      'Stock Production': 'stockProduction',
+      'CNC Operator': 'cncOperator',
+      'Assembly': 'assembly',
+      'Finishing': 'finishing',
+      'Upholstery': 'upholstery',
+    };
     if (entry.details.labor && entry.details.labor.breakdown) {
       for (const item of entry.details.labor.breakdown) {
         if (item.type !== 'Labor Surcharge') {
-          let key = item.type.replace(/\s+/g, '');
-          key = key.charAt(0).toLowerCase() + key.slice(1);
-          if (key === 'stockProduction') key = 'stockProduction';
-          if (key === 'cNC Operator') key = 'cncOperator';
-          itemData.labor[key] = {
-            hours: item.hours,
-            rate: item.rate
-          };
+          const key = LABOR_TYPE_TO_KEY[item.type];
+          if (key) {
+            itemData.labor[key] = {
+              hours: item.hours,
+              rate: item.rate
+            };
+          }
         }
       }
     }
