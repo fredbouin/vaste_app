@@ -14,8 +14,6 @@ export const useProjectManagement = (modelTimes) => {
     const recalculateProjects = async () => {
       if (!modelTimes || !projects.length) return;
 
-      console.log('Recalculating projects with new model times:', modelTimes);
-
       try {
         const updatedProjects = projects.map((project, index) => {
           const recalculated = calculateTimeline(
@@ -39,7 +37,6 @@ export const useProjectManagement = (modelTimes) => {
           axios.put(`${API_BASE_URL}/api/projects/${project._id}`, project)
         ));
 
-        console.log('Projects recalculated with new times:', updatedProjects);
         setProjects(updatedProjects);
       } catch (err) {
         setError('Failed to update projects with new model times.');

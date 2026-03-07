@@ -54,7 +54,6 @@ const SettingsPage = () => {
           if (dbSettings && Object.keys(dbSettings).length > 0) {
             setSettings(prevSettings => ({...prevSettings, ...dbSettings}));
             localStorage.setItem('calculatorSettings', JSON.stringify(dbSettings));
-            console.log('Successfully loaded settings from database.');
             return;
           }
         }
@@ -66,7 +65,6 @@ const SettingsPage = () => {
       const savedSettings = localStorage.getItem('calculatorSettings');
       if (savedSettings) {
         setSettings(JSON.parse(savedSettings));
-        console.log('Loaded settings from localStorage.');
       }
     };
 
@@ -87,7 +85,6 @@ const SettingsPage = () => {
 
   // Function to save settings to MongoDB via the API
   const saveSettingsToDB = async () => {
-    console.log("Attempting to save settings:", settings);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/settings`, {
         method: 'POST',
@@ -96,12 +93,10 @@ const SettingsPage = () => {
       });
       
       const rawResponse = await response.text();
-      console.log("Raw response:", rawResponse);
-      
+
       // Only parse JSON if there is a response body
       const data = rawResponse ? JSON.parse(rawResponse) : {};
-      
-      console.log('Settings saved:', data);
+
       alert('Settings successfully saved to the database!');
     } catch (error) {
       console.error('Error saving settings:', error);

@@ -75,12 +75,9 @@ const PriceSheet = () => {
         if (savedSettings) {
           const parsedSettings = JSON.parse(savedSettings);
           setSettings(parsedSettings);
-          console.log('Settings loaded from localStorage');
         }
 
-        console.log('Fetching price sheet data');
         const response = await axios.get(`${API_BASE_URL}/api/price-sheet`);
-        console.log(`Received ${response.data.length} items from server`);
 
         setPriceData({
           pieces: response.data.filter(item => !item.isComponent && !item.isCustom),
@@ -104,7 +101,6 @@ const PriceSheet = () => {
     }
 
     try {
-      console.log(`Deleting item ${id}`);
       await axios.delete(`${API_BASE_URL}/api/price-sheet/${id}`);
 
       const key = isComponent ? 'components' : (isCustom ? 'custom' : 'pieces');
@@ -112,7 +108,6 @@ const PriceSheet = () => {
         ...prev,
         [key]: prev[key].filter(item => item._id !== id)
       }));
-      console.log(`Item ${id} deleted successfully`);
     } catch (err) {
       console.error('Error removing item:', err);
       alert('Failed to remove item. Please try again.');
@@ -120,7 +115,6 @@ const PriceSheet = () => {
   };
 
   const handleSync = (updatedItem) => {
-    console.log('Sync complete, updating item in state:', updatedItem._id);
     const key = updatedItem.isComponent ? 'components' : (updatedItem.isCustom ? 'custom' : 'pieces');
 
     setPriceData(prev => {
@@ -137,8 +131,6 @@ const PriceSheet = () => {
         item._id === updatedItem._id ? merged : item
       );
 
-      console.log(`Updated ${key} array, now has ${updatedItems.length} items`);
-
       return {
         ...prev,
         [key]: updatedItems
@@ -147,7 +139,6 @@ const PriceSheet = () => {
   };
 
   const handleEdit = (item) => {
-    console.log('Editing item:', item._id);
     const laborData = {
       stockProduction: { hours: 0, rate: 0 },
       cncOperator: { hours: 0, rate: 0 },

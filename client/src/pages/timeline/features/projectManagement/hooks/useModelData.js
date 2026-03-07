@@ -9,13 +9,9 @@ export const useModelData = () => {
 
   useEffect(() => {
     const loadModelTimes = async () => {
-      console.log('Starting to fetch model times...');
       try {
         setIsLoading(true);
-        
-        // Log the request being made
-        console.log('Making request to /api/model-templates with cache-busting headers');
-        
+
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/model-templates`, {
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -23,14 +19,6 @@ export const useModelData = () => {
             'Expires': '0'
           }
         });
-        
-        // Log the response data
-        console.log('Received model times data:', response.data);
-        
-        // Log state update
-        console.log('Previous modelTimes:', modelTimes);
-        console.log('New modelTimes:', response.data);
-        
         setModelTimes(response.data);
         setError('');
       } catch (err) {
@@ -47,11 +35,6 @@ export const useModelData = () => {
 
     loadModelTimes();
   }, []); // Only runs on mount
-
-  // Log whenever modelTimes changes
-  useEffect(() => {
-    console.log('modelTimes state updated to:', modelTimes);
-  }, [modelTimes]);
 
   return {
     modelTimes,

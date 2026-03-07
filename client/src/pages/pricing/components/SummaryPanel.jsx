@@ -86,13 +86,6 @@ const SummaryPanel = ({
     components
   });
 
-  useEffect(() => {
-    if (data.materials?.sheet && data.materials.sheet.length > 0) {
-      console.log('Sheet materials in data:', data.materials.sheet);
-      console.log('Sheet cost in pieceCosts:', pieceCosts.materials.sheet.cost);
-    }
-  }, [data.materials?.sheet, pieceCosts]);
-
   const CostSection = ({ title, items, total, className = '' }) => (
     <div className={`pb-4 mb-4 ${className}`}>
       <h3 className="font-medium mb-3">{title}</h3>

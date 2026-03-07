@@ -58,7 +58,6 @@ export const calculateTimeline = (modelNumber, quantity, existingProjects = [], 
     return null;
   }
 
-  console.log('Using model template:', modelTemplate);
   const modelData = modelTemplate.operationTimes;
   
   const timeline = [];

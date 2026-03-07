@@ -114,7 +114,6 @@ const usePricingCalculator = () => {
   };
 
   const handlePieceDataChange = (field, value) => {
-    console.log('Updating field:', field, 'value:', value); // Debug log
     setData(prevData => {
       const newData = { ...prevData };
       if (field === 'selectedComponents') {
@@ -124,9 +123,7 @@ const usePricingCalculator = () => {
       } else {
         newData[field] = value;
       }
-      
-      // Debug log the new state
-      console.log('Updated data:', newData);
+
       autoSave(newData);
       return newData;
     });

@@ -31,12 +31,7 @@ export const priceSheetApi = {
 
   sync: async (id, currentSettings) => {
     try {
-      console.log('Attempting to sync with ID:', id);
-      console.log('Sync URL:', `${API_URL}/${id}/sync`);
-      console.log('Settings payload:', JSON.stringify(currentSettings, null, 2));
-      
       const response = await axios.post(`${API_URL}/${id}/sync`, { currentSettings });
-      console.log('Sync response received:', response.status);
       return response.data;
     } catch (error) {
       console.error('Sync error:', error.message);

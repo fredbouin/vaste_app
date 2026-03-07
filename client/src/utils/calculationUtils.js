@@ -134,20 +134,6 @@ export const calculateTotalCosts = ({ data, settings, totalLaborHours, calculate
                      overheadCost + 
                      componentsCost;
 
-  // For debugging
-  console.log('Total cost breakdown:', {
-    labor: baseLaborCost + surchargeCost,
-    wood: totalWoodCost,
-    sheet: sheetCost,
-    upholstery: upholsteryCost,
-    hardware: hardwareCost,
-    finishing: finishingCost,
-    cnc: cncCost,
-    overhead: overheadCost,
-    components: componentsCost,
-    grandTotal
-  });
-
   return {
     pieceCosts: {
       labor: {

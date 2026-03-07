@@ -104,7 +104,6 @@ const FurniturePricingCalculator = () => {
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        console.log('Parsed saved data:', parsedData);
         const updatedData = {
           ...parsedData,
           labor: {
@@ -137,7 +136,6 @@ const FurniturePricingCalculator = () => {
             }
           }
         };
-        console.log('Updated data for editing:', updatedData);
         setData(updatedData);
         localStorage.removeItem('calculatorAutosave');
       } catch (error) {
@@ -181,7 +179,6 @@ const FurniturePricingCalculator = () => {
           }
         };
 
-        console.log('handleDataChange updated labor:', updatedLabor);
         return {
           ...prev,
           labor: updatedLabor
@@ -269,10 +266,6 @@ const FurniturePricingCalculator = () => {
 
   // IMPORTANT FIX: Make sure components match the expected MongoDB schema format
    if (priceSheetEntry.details && priceSheetEntry.details.components) {
-    // Debug the components before transformation
-    console.log('Components before transformation:', 
-      JSON.stringify(priceSheetEntry.details.components, null, 2));
-    
     // Format components to match the schema structure exactly
     priceSheetEntry.details.components = priceSheetEntry.details.components.map(component => {
       // Create a new object with only the fields defined in the schema
@@ -284,27 +277,15 @@ const FurniturePricingCalculator = () => {
         quantity: Number(component.quantity || 1)
       };
     });
-    
-    // Debug the components after transformation
-    console.log('Components after transformation:', 
-      JSON.stringify(priceSheetEntry.details.components, null, 2));
   }
 
-  console.log('Price sheet entry before save:', JSON.stringify(priceSheetEntry, null, 2));
-  
   try {
-    console.log('About to submit price sheet entry');
-    
     if (data.editingId) {
-      console.log('Updating existing entry:', data.editingId);
       await priceSheetApi.update(data.editingId, priceSheetEntry);
     } else {
-      console.log('Adding new entry to API');
-      const response = await priceSheetApi.add(priceSheetEntry);
-      console.log('API response:', response);
+      await priceSheetApi.add(priceSheetEntry);
     }
-    
-    console.log('Entry saved successfully, redirecting...');
+
     localStorage.removeItem('calculatorAutosave');
     window.location.href = '/price-sheet';
   } catch (error) {
