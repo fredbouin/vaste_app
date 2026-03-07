@@ -28,7 +28,6 @@ test('pricing sync retains hardware costs without settings ids', () => {
 
 
 test('pricing applies MSRP margin on top of wholesale price', () => {
-test('pricing applies MSRP margin on top of wholesale price', () => {
   const itemData = {
     labor: {
       assembly: { hours: 1, rate: 100 }
@@ -45,6 +44,5 @@ test('pricing applies MSRP margin on top of wholesale price', () => {
 
   assert.strictEqual(result.totals.cost, 100);
   assert.ok(Math.abs(result.totals.wholesale - 111.1111111111) < 0.0001);
-  assert.ok(Math.abs(result.totals.msrp - 222.2222222222) < 0.0001);
   assert.ok(Math.abs(result.totals.msrp - 222.2222222222) < 0.0001);
 });
