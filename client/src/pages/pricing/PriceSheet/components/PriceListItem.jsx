@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, ChevronRight, Trash2, Pencil, Copy, RefreshCw, DollarSign } from 'lucide-react';
 import ExpandedDetails from './ExpandedDetails';
 import { priceSheetApi } from '../../../../api/priceSheet';
-import { calculatePrice, calculateTotalCosts } from '../../../../utils/calculationUtils';
+import { calculatePrice, calculateTotalCosts } from '../../../../services/calculationService';
 import { toArray } from '../../../../utils/normalize';
 import { smartMergeDetails, num } from './smartMergeDetails.mjs';
 

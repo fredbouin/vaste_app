@@ -1,4 +1,4 @@
-import { calculateTotalCosts } from '../../../../utils/calculationUtils';
+import { calculateTotalCosts } from '../../../../services/calculationService';
 import { toArray } from '../../../../utils/normalize';
 
 const ExpandedDetails = ({ item, isComponent, settings, prices, baseCost }) => {

@@ -7,7 +7,7 @@ import { FileText } from 'lucide-react';
 import ConfirmationDialog from './ConfirmationDialog';
 import { priceSheetApi } from '../../../api/priceSheet';
 
-import { calculateTotalCosts } from '../../../utils/calculationUtils';
+import { calculateTotalCosts } from '../../../services/calculationService';
 
 const SummaryPanel = ({ 
   data, 
@@ -267,7 +267,7 @@ export default SummaryPanel;
 // import { priceSheetApi } from '../../../api/priceSheet';
 
 // // Import calculation utilities
-// import { calculateTotalCosts } from '../../../utils/calculationUtils';
+// import { calculateTotalCosts } from '../../../services/calculationService';
 
 // const SummaryPanel = ({ 
 //   data, 

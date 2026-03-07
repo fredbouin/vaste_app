@@ -1,16 +1,11 @@
 // src/components/layout/MainLayout.jsx
 import { Link, useLocation } from 'react-router-dom';
-import { Calendar, Calculator, FileText, Settings } from 'lucide-react';
+import { Calculator, FileText, Settings } from 'lucide-react';
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
 
   const navigationItems = [
-    {
-      name: 'Timeline',
-      path: '/timeline',
-      icon: Calendar
-    },
     {
       name: 'Pricing',
       path: '/pricing',

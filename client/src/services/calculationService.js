@@ -358,6 +358,109 @@ export const calculatePrice = (cost, marginPercent) => {
   return cost * markup;
 };
 
+/**
+ * Calculate total costs for a furniture piece or component
+ *
+ * @param {Object} props - Input props containing data, settings, labor hours and components
+ * @returns {Object} - Calculated costs for all aspects of the piece
+ */
+export const calculateTotalCosts = ({ data, settings, totalLaborHours, calculateOverheadRate, components }) => {
+  const laborBreakdown = Object.entries(data.labor || {})
+    .filter(([key]) => key !== 'surcharge')
+    .map(([type, { hours, rate }]) => {
+      if (!hours || !rate) return null;
+      let displayType = type.replace(/([A-Z])/g, ' $1').trim();
+      return {
+        type: displayType,
+        hours: Number(hours) || 0,
+        rate: Number(rate) || 0,
+        cost: (Number(hours) || 0) * (Number(rate) || 0)
+      };
+    }).filter(Boolean);
+
+  const baseLaborCost = laborBreakdown.reduce((sum, { cost }) => sum + cost, 0);
+
+  const surchargePercent = settings?.labor?.extraFee || 0;
+  const surchargeCost = baseLaborCost * (surchargePercent / 100);
+
+  if (surchargePercent > 0) {
+    laborBreakdown.push({
+      type: 'Labor Surcharge',
+      hours: 0,
+      rate: 0,
+      cost: surchargeCost,
+      detail: `${surchargePercent}% surcharge`
+    });
+  }
+
+  const woodWasteFactor = settings?.materials?.woodWasteFactor || 0;
+  const woodEntries = data.materials?.wood || [];
+  const woodBaseCost = woodEntries.reduce((sum, wood) => {
+    return sum + ((Number(wood.boardFeet) || 0) * (Number(wood.cost) || 0));
+  }, 0);
+  const woodWasteCost = woodBaseCost * (woodWasteFactor / 100);
+  const totalWoodCost = woodBaseCost + woodWasteCost;
+
+  const sheetEntries = data.materials?.sheet || [];
+  const sheetCost = sheetEntries.reduce((sum, sheet) => {
+    return sum + (Number(sheet.quantity || 1) * Number(sheet.pricePerSheet || 0));
+  }, 0);
+
+  const upholsteryEntries = data.materials?.upholstery?.items || [];
+  const upholsteryCost = upholsteryEntries.reduce(
+    (sum, item) => sum + (Number(item.squareFeet || 0) * Number(item.costPerSqFt || 0)),
+    0
+  );
+
+  const hardwareEntries = data.materials?.hardware || [];
+  const hardwareCost = hardwareEntries.reduce(
+    (sum, item) => sum + ((Number(item.quantity) || 0) * (Number(item.pricePerUnit) || 0)),
+    0
+  );
+
+  const finishingCost = calculateFinishingCost(data.materials?.finishing || {});
+
+  const totalMaterialsCost = totalWoodCost + sheetCost + upholsteryCost + hardwareCost + finishingCost;
+
+  const cncRuntime = Number(data.cnc?.runtime) || 0;
+  const cncRate = Number(data.cnc?.rate) || 0;
+  const cncCost = cncRuntime * cncRate;
+
+  const pieceProductionHours = totalLaborHours + cncRuntime;
+  const overheadRate = typeof calculateOverheadRate === 'function' ? calculateOverheadRate() : 0;
+  const overheadCost = overheadRate * pieceProductionHours;
+
+  const componentsCost = (components || []).reduce((sum, comp) => sum + (Number(comp.cost) || 0), 0);
+
+  const grandTotal = baseLaborCost + surchargeCost +
+    totalMaterialsCost +
+    cncCost +
+    overheadCost +
+    componentsCost;
+
+  return {
+    pieceCosts: {
+      labor: {
+        cost: baseLaborCost + surchargeCost,
+        hours: totalLaborHours,
+        breakdown: laborBreakdown
+      },
+      materials: {
+        wood: { baseCost: woodBaseCost, wasteCost: woodWasteCost, totalCost: totalWoodCost },
+        upholstery: { cost: upholsteryCost },
+        hardware: { cost: hardwareCost },
+        finishing: { cost: finishingCost },
+        sheet: { cost: sheetCost },
+        total: totalMaterialsCost
+      },
+      cnc: { runtime: cncRuntime, rate: cncRate, cost: cncCost },
+      overhead: { rate: overheadRate, hours: pieceProductionHours, cost: overheadCost }
+    },
+    componentsCost,
+    grandTotal
+  };
+};
+
 // Default export for the full service
 export default {
   calculatePricing,
@@ -369,5 +472,6 @@ export default {
   calculateUpholsteryCost,
   calculateSheetCost,
   calculateComponentsCost,
-  calculatePrice
+  calculatePrice,
+  calculateTotalCosts
 };

@@ -1,6 +1,5 @@
 // App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import TimelinePage from './pages/timeline/TimelinePage';
 import PricingPage from './pages/pricing/PricingPage';
 import PriceSheetPage from './pages/pricing/PriceSheetPage';
 import SettingsPage from './pages/settings/SettingsPage';
@@ -15,11 +14,10 @@ function App() {
         <main className="flex-grow">
           <MainLayout>
             <Routes>
-              <Route path="/timeline" element={<TimelinePage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/price-sheet" element={<PriceSheetPage />} />
               <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/" element={<Navigate to="/timeline" replace />} />
+              <Route path="/" element={<Navigate to="/pricing" replace />} />
             </Routes>
           </MainLayout>
         </main>
