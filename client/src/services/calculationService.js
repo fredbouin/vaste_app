@@ -292,7 +292,7 @@ export const calculatePricing = (itemData, settings) => {
   const msrpMargin = Number(settings?.margins?.msrp) || 0;
   
   const wholesalePrice = calculatePrice(grandTotal, wholesaleMargin);
-  const msrpPrice = calculatePrice(grandTotal, msrpMargin);
+  const msrpPrice = calculatePrice(wholesalePrice, msrpMargin);
   
   return {
     labor: {
