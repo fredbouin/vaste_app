@@ -90,11 +90,8 @@ const PriceListItem = ({
   const effectiveCost = Number(itemState?.cost) > 0 ? Number(itemState.cost) : derivedCost;
 
   const wholesalePrice = calculatePrice(effectiveCost, settings?.margins?.wholesale);
-<<<<<<< codex/fix-pricing-margin-calculations-a46pwe
   const msrpPrice = calculatePrice(wholesalePrice, settings?.margins?.msrp);
-=======
   const msrpPrice = calculatePrice(effectiveCost, settings?.margins?.msrp);
->>>>>>> master
   // Include manual price in the prices object so downstream components can show it
   const prices = {
     wholesale: wholesalePrice,
